@@ -19,83 +19,6 @@ const generateRefreshToken = (user) => {
 };
 
 
-// ================= REGISTER =================
-export const registerStudent = async (req, res) => {
-  try {
-    const {
-      name,
-      email,
-      password,
-      enrollmentNo,
-      course,
-      branch,
-      year,
-      semester,
-      roomNumber,
-      hostelNo,
-      contact,
-      permanentAddress,
-      parentName,
-      parentNumber,
-      LgName,
-      LgNumber,
-      LgAddress,
-    } = req.body;
-
-     if (!name || !email || !password || !enrollmentNo) {
-      return res.status(400).json({
-        message: "Name, email, password and enrollment number are required",
-      });
-    }
-
-    const existingEmail = await prisma.student.findUnique({
-      where: { email },
-    });
-
-    if (existingEmail)
-      return res.status(400).json({ message: "Email already exists" });
-
-    const existingEnrollment = await prisma.student.findUnique({
-  where: { enrollmentNo },
-});
-
-if (existingEnrollment)
-  return res.status(400).json({ message: "Enrollment number already exists" });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await prisma.student.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        enrollmentNo,
-        course,
-        branch,
-        year,
-        semester,
-        roomNumber,
-        hostelNo,
-        contact,
-        permanentAddress,
-        parentName,
-        parentNumber,
-        LgName,
-        LgNumber,
-        LgAddress,
-      },
-    });
-
-    res.status(201).json({
-      message: "Student registered successfully",
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Registration failed" });
-  }
-};
-
 // ================= LOGIN =================
 export const login = async (req, res) => {
   try {
@@ -108,7 +31,7 @@ export const login = async (req, res) => {
     let user = null;
     let role = null;
 
-    // 🔹 1️⃣ Try Student (enrollmentNo)
+    //  Try Student (enrollmentNo)
     user = await prisma.student.findUnique({
       where: { enrollmentNo: userId },
     });
@@ -116,7 +39,7 @@ export const login = async (req, res) => {
     if (user) {
       role = "STUDENT";
     } else {
-      // 🔹 2️⃣ Try Admin (adminCode)
+      //  Try Admin (adminCode)
       user = await prisma.admin.findUnique({
         where: { adminCode: userId },
       });

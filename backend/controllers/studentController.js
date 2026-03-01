@@ -3,18 +3,91 @@
 export const getStudentDashboard = async (req, res) => {
   try {
     const studentId = req.user.id;
-    const complaintsCount = await prisma.complaint.count({
+
+    // 1️⃣ Get Student Info
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+      select: {
+        name: true,
+        email: true,
+        enrollmentNo: true,
+        course: true,
+        year: true,
+        roomNumber: true,
+        hostelNo: true,
+        createdAt: true,
+      },
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // 2️⃣ Complaint Stats
+    const totalComplaints = await prisma.complaint.count({
       where: { studentId },
     });
 
-    const announcementsCount = await prisma.announcement.count();
+    const pendingComplaints = await prisma.complaint.count({
+      where: { studentId, status: "pending" },
+    });
+
+    const resolvedComplaints = await prisma.complaint.count({
+      where: { studentId, status: "resolved" },
+    });
+
+    // 3️⃣ Extension Status
+    const pendingExtensions = await prisma.extensionRequest.count({
+      where: { studentId, status: "pending" },
+    });
+
+    // 4️⃣ Stay Duration (months)
+    const today = new Date();
+    const joinedDate = new Date(student.createdAt);
+
+    const monthsStayed =
+      (today.getFullYear() - joinedDate.getFullYear()) * 12 +
+      (today.getMonth() - joinedDate.getMonth());
+
+    // 5️⃣ Latest Announcements
+    const latestAnnouncements = await prisma.announcement.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        createdAt: true,
+      },
+    });
 
     res.status(200).json({
-      complaintsCount,
-      announcementsCount,
+      welcome: `Welcome, ${student.name}`,
+      basicInfo: {
+        enrollmentNo: student.enrollmentNo,
+        email: student.email,
+        course: student.course,
+        year: student.year,
+        roomNumber: student.roomNumber,
+        hostelNo: student.hostelNo,
+      },
+      complaints: {
+        total: totalComplaints,
+        pending: pendingComplaints,
+        resolved: resolvedComplaints,
+      },
+      extensions: {
+        pending: pendingExtensions,
+      },
+      stayDuration: {
+        months: monthsStayed,
+        since: student.createdAt,
+      },
+      announcements: latestAnnouncements,
     });
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error loading dashboard" });
   }
 };
