@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Announcements = () => {
+const StudentAnnouncements = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -108,4 +108,4 @@ const Announcements = () => {
   );
 };
 
-export default Announcements;
+export default StudentAnnouncements;
