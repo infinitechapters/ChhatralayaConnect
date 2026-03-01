@@ -36,14 +36,14 @@ function Dashboard() {
 
           <div className="space-x-4">
             <Link
-              to="/loginStudent"
+              to="/login"
               className="hover:text-gray-200 transition"
             >
               Student Login
             </Link>
 
             <Link
-              to="/loginAdmin"
+              to="/login"
               className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg font-medium transition"
             >
               Admin Login
@@ -75,14 +75,14 @@ function Dashboard() {
 
     <div className="space-x-4">
       <Link
-        to="/loginStudent"
+        to="/login"
         className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg text-lg font-semibold transition transform hover:scale-105"
       >
         Student Portal
       </Link>
 
       <Link
-        to="/loginAdmin"
+        to="/login"
         className="border border-white hover:bg-white hover:text-black px-6 py-3 rounded-lg text-lg font-semibold transition transform hover:scale-105"
       >
         Admin Dashboard
@@ -129,7 +129,7 @@ function Dashboard() {
         </p>
 
         <Link
-          to="/login?role=student"
+          to="/login"
           className="bg-white text-blue-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition"
         >
           Get Started
