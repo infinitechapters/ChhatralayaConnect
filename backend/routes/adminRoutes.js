@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   addStudent,
+  getDashboardStats,
   getVerifiedStudents
 } from "../controllers/adminController.js";
 
@@ -33,6 +34,8 @@ const router = express.Router();
 
 // Add student
 router.post("/add-student", addStudent);
+
+router.get("/dashboard", getDashboardStats);
 
 
 // Get verified students

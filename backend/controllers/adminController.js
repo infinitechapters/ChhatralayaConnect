@@ -2,6 +2,42 @@ import prisma from "../prismaClient.js";
 import bcrypt from "bcryptjs";
 
 
+// GET DASHBOARD STATS
+export const getDashboardStats = async (req, res) => {
+  try {
+
+    const totalStudents = await prisma.student.count({
+      where: { isVerified: true }
+    });
+
+    const pendingComplaints = await prisma.complaint.count({
+      where: {
+        status: {
+          in: ["pending", "in_progress"]
+        }
+      }
+    });
+
+   const rooms = await prisma.student.findMany({
+  distinct: ['roomNumber'],
+  select: { roomNumber: true }
+});
+
+const totalRooms = rooms.length;
+
+    res.status(200).json({
+      totalStudents,
+      pendingComplaints,
+      totalRooms
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error fetching dashboard data"
+    });
+  }
+};
 
 // ✅ Add Student
 export const addStudent = async (req, res) => {

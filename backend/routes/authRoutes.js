@@ -1,6 +1,6 @@
 import express from "express";
 import { getAvailableRooms, addStudent ,login} from "../controllers/authController.js";
-import { authorizeRoles } from "../middleware/authMiddleware.js";
+import { authorizeRoles, protect } from "../middleware/authMiddleware.js";
 
 
 const router = express.Router();
