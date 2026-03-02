@@ -23,7 +23,7 @@ router.get("/announcements", getAnnouncements);
 router.post("/complaint", submitComplaint);
 router.get("/complaint/:id", getStudentComplaints);
 
-router.post("/extension", submitExtensionRequest);
+router.post("/extensionRequest", submitExtensionRequest);
 router.get("/extension", getExtensionRequests);
 
 export default router;

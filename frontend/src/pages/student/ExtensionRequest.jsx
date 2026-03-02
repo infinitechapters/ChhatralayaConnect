@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "./services/api"; 
 
 const ExtensionRequest = () => {
+
   const [formData, setFormData] = useState({
     tillDate: "",
     reason: "",
@@ -14,132 +16,105 @@ const ExtensionRequest = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.value
     }));
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
-    setMessage("");
+
     setError("");
-
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+    setMessage("");
 
     if (!formData.tillDate || !formData.reason) {
-      setError("All fields are required.");
+      setError("All fields are required");
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch(
-        "http://localhost:5000/api/students/extension",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(formData),
-        }
-      );
 
-      const data = await res.json();
+      const res = await API.post("/students/extension", formData);
 
-      if (res.status === 401) {
-        localStorage.clear();
-        navigate("/dashboard");
-        return;
-      }
+      setMessage("Extension request submitted successfully");
 
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to submit request");
-      }
-
-      setMessage("Extension request submitted successfully.");
-      setFormData({ tillDate: "", reason: "" });
+      setFormData({
+        tillDate: "",
+        reason: ""
+      });
 
     } catch (err) {
-      setError(err.message);
+
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      }
+
+      setError(
+        err.response?.data?.message || "Something went wrong"
+      );
+
     } finally {
       setLoading(false);
     }
+
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-xl">
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        <h2 className="text-2xl font-bold mb-6">
           Hostel Stay Extension Form
         </h2>
 
         {error && (
-          <div className="bg-red-100 text-red-600 p-3 rounded mb-4 text-sm">
+          <div className="bg-red-100 text-red-600 p-3 rounded mb-4">
             {error}
           </div>
         )}
 
         {message && (
-          <div className="bg-green-100 text-green-600 p-3 rounded mb-4 text-sm">
+          <div className="bg-green-100 text-green-600 p-3 rounded mb-4">
             {message}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* Till Date */}
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
-              Extension Till Date *
-            </label>
-            <input
-              type="date"
-              name="tillDate"
-              value={formData.tillDate}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
+          <input
+            type="date"
+            name="tillDate"
+            value={formData.tillDate}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-4 py-2"
+          />
 
-          {/* Reason */}
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
-              Reason for Extension *
-            </label>
-            <textarea
-              name="reason"
-              value={formData.reason}
-              onChange={handleChange}
-              rows="4"
-              placeholder="Explain the reason for extension..."
-              className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-            />
-          </div>
+          <textarea
+            name="reason"
+            value={formData.reason}
+            onChange={handleChange}
+            rows="4"
+            className="w-full border rounded-lg px-4 py-2"
+          />
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-lg font-semibold text-white transition ${
-              loading
-                ? "bg-blue-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg"
           >
-            {loading ? "Submitting..." : "SUBMIT REQUEST"}
+            {loading ? "Submitting..." : "Submit Request"}
           </button>
 
         </form>
+
       </div>
+
     </div>
   );
 };
