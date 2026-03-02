@@ -4,6 +4,7 @@ import {
     createAnnouncement,
     getAllAnnouncements,
 } from "../../services/adminApi";
+import { useNavigate } from "react-router-dom";
 
 const Announcements = () => {
     const [announcements, setAnnouncements] = useState([]);
@@ -11,9 +12,19 @@ const Announcements = () => {
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const navigate = useNavigate();
+
     useEffect(() => {
-        fetchAnnouncements();
-    }, []);
+  const token = localStorage.getItem("accessToken");
+  const role = localStorage.getItem("role");
+
+  if (!token || role !== "ADMIN") {
+    navigate("/login");
+    return;
+  }
+
+  fetchAnnouncements();
+}, []);
 
     const fetchAnnouncements = async () => {
         try {

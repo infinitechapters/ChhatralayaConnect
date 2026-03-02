@@ -389,21 +389,15 @@ export const createAnnouncement = async (req, res) => {
   try {
     const { title, description } = req.body;
 
-    // fetch logged-in admin from DB
-    const admin = await prisma.admin.findUnique({
-      where: { id: req.user.id }
-    });
-
-    if (!admin) {
-      return res.status(404).json({ message: "Admin not found" });
+    if (!title || !description) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     const announcement = await prisma.announcement.create({
       data: {
         title,
         description,
-        hostelNo: admin.hostelNo,
-        createdById: admin.id
+        createdById: req.user.id // ✅ only this needed
       }
     });
 
@@ -413,11 +407,12 @@ export const createAnnouncement = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Create announcement error:", error);
+    console.error("CREATE ERROR FULL:", error);
+console.error("MESSAGE:", error.message);
+console.error("STACK:", error.stack);
     res.status(500).json({ message: "Error creating announcement" });
   }
 };
-
 
 
 // GET ALL ANNOUNCEMENTS

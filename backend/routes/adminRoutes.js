@@ -32,6 +32,7 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+router.use(protect); // Protect all routes below
 
 // Add student
 router.post("/add-student", addStudent);
@@ -55,9 +56,9 @@ router.put("/complaints/:id", updateComplaintStatus);
 
 
 
-// Announcement Routes
+// Announcement Routes,
 
-router.post("/announcements", createAnnouncement);
+router.post("/announcements" ,createAnnouncement);
 
 router.get("/announcements", getAllAnnouncements);
 
