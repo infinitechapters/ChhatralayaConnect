@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React,{ useEffect, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import { getAllStudents } from "../../services/adminApi";
 
@@ -10,10 +10,15 @@ const Students = () => {
     fetchStudents();
   }, []);
 
-  const fetchStudents = async () => {
+const fetchStudents = async () => {
+  try {
     const res = await getAllStudents();
-    setStudents(res.data);
-  };
+    setStudents(Array.isArray(res.data) ? res.data : res.data.students || []);
+  } catch (error) {
+    console.error(error);
+    setStudents([]);
+  }
+};
 
   return (
     <AdminLayout>
@@ -31,20 +36,15 @@ const Students = () => {
         </thead>
 
         <tbody>
-
-          {students.map((student) => (
-
-            <tr key={student.id}>
-
-              <td>{student.name}</td>
-              <td>{student.roomNumber}</td>
-              <td>{student.course}</td>
-
-            </tr>
-
-          ))}
-
-        </tbody>
+  {Array.isArray(students) &&
+    students.map((student) => (
+      <tr key={student._id}>
+        <td>{student.name}</td>
+        <td>{student.roomNumber}</td>
+        <td>{student.course}</td>
+      </tr>
+    ))}
+</tbody>
 
       </table>
 

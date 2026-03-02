@@ -12,7 +12,7 @@ export const getAllComplaints = () =>
 export const updateComplaintStatus = (id, status) =>
   API.put(`/admin/complaints/${id}`, { status });
 
-export const getAnnouncements = () =>
+export const getAllAnnouncements = () =>
   API.get("/admin/announcements");
 
 export const createAnnouncement = (data) =>

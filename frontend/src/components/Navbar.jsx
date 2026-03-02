@@ -1,3 +1,4 @@
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = ({ role }) => {
@@ -40,21 +41,21 @@ const Navbar = ({ role }) => {
           </Link>
         )}
 
-        <Link
+        {/* <Link
           to={`/${basePath}/rooms`}
           className="hover:text-gray-200 transition"
         >
           Rooms
-        </Link>
+        </Link> */}
 
-        {role === "ADMIN" && (
+        {/* {role === "ADMIN" && (
           <Link
             to="/admin/fees"
             className="hover:text-gray-200 transition"
           >
             Fees
           </Link>
-        )}
+        )} */}
 
         <Link
           to={`/${basePath}/complaints`}
