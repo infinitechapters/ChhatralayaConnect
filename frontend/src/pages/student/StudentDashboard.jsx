@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import API from "../../api"; // adjust path if needed
+import API from "../../services/api.js";
 import { useNavigate } from "react-router-dom";
 
 const StudentDashboard = () => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../../api"; // adjust path if needed
+import API from "../../services/api.js"; // adjust path if needed
 
 const StudentAnnouncements = () => {
 
