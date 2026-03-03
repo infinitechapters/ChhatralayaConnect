@@ -100,16 +100,6 @@ export const getStudentProfile = async (req, res) => {
 
     const student = await prisma.student.findUnique({
       where: { id: studentId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        enrollmentNo: true,
-        roomNumber: true,
-        course: true,
-        year: true,
-        contact: true,
-      },
     });
 
     if (!student) {
@@ -120,6 +110,51 @@ export const getStudentProfile = async (req, res) => {
 
   } catch (error) {
     res.status(500).json({ message: "Error fetching profile" });
+  }
+};
+
+// UPDATE PROFILE
+export const updateStudentProfile = async (req, res) => {
+  try {
+    const studentId = req.user.id;
+
+    const {
+      branch,
+      year,
+      semester,
+      contact,
+      permanentAddress,
+      parentName,
+      parentNumber,
+      LgName,
+      LgNumber,
+      LgAddress
+    } = req.body;
+
+    const updatedStudent = await prisma.student.update({
+      where: { id: studentId },
+      data: {
+        branch,
+        year: year ? Number(year) : null,
+        semester: semester ? Number(semester) : null,
+        contact,
+        permanentAddress,
+        parentName,
+        parentNumber,
+        LgName,
+        LgNumber,
+        LgAddress
+      }
+    });
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      student: updatedStudent
+    });
+
+  } catch (error) {
+    console.error("UPDATE PROFILE ERROR:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 
