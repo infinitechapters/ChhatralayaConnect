@@ -16,6 +16,10 @@ import Login from "./Login.jsx";
 import Complaint from "./pages/student/Complaint.jsx";
 import StudentProfile from "./pages/student/StudentProfile.jsx";
 
+import ActivitiesPage from "./pages/ActivitiesPages.jsx";
+import AdministratorPage from "./pages/AdministratorPage.jsx";
+import RulesPage from "./pages/RulesPage.jsx";
+
 function App() {
   return (
     <>
@@ -34,7 +38,13 @@ function App() {
       <Route path="/student/complaints" element={<Complaint />} />
           <Route path="/student/announcements" element={<StudentAnnouncements />} />
           <Route path="/student/extensions" element={<ExtensionRequest />} />
-         <Route path="/admin/dashboard" element={<AdminDashboard />} /> */
+        <Route path="/admin/dashboard" element={<AdminDashboard />} /> */
+        
+
+        {/* {beautifying project parts } */}
+         <Route path="/activities" element={<ActivitiesPage />} />
+        <Route path="/administrator" element={<AdministratorPage />} />
+        <Route path="/rules" element={<RulesPage />} />
         </Routes>
     </>
   )
