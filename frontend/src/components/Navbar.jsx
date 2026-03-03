@@ -59,6 +59,13 @@ const Navbar = ({ role }) => {
         </Link>
 
         <Link
+          to={`/${basePath}/extensions`}
+          className="hover:text-gray-200 transition"
+        >
+          Extension Request
+        </Link>
+
+        <Link
           to={`/${basePath}/announcements`}
           className="hover:text-gray-200 transition"
         >

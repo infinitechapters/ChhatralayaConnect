@@ -3,9 +3,10 @@ import express from "express";
 import {
   addStudent,
   assignRoomToStudent,
+  getAllStudents,
   getDashboardStats,
   getVacantRooms,
-  getVerifiedStudents
+  verifyStudentProfile
 } from "../controllers/adminController.js";
 
 
@@ -26,8 +27,7 @@ import {
 
 import {
   getAllExtensionRequests,
-  approveExtensionRequest,
-  rejectExtensionRequest
+   updateExtensionStatus
 } from "../controllers/adminController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -42,7 +42,7 @@ router.get("/dashboard", getDashboardStats);
 
 
 // Get verified students
-router.get("/students", getVerifiedStudents);
+router.get("/students", getAllStudents);
 // Get all complaints
 router.get("/complaints", getAllComplaints);
 
@@ -70,16 +70,11 @@ router.put("/announcements/:id", updateAnnouncement);
 
 router.delete("/announcements/:id", deleteAnnouncement);
 
+router.put("/verifyStudent/:id", verifyStudentProfile);
 
-// GET all extension requests
+
+// extension requests
 router.get("/extensions", getAllExtensionRequests);
-
-
-// APPROVE extension
-router.put("/extensions/:id/approve", approveExtensionRequest);
-
-
-// REJECT extension
-router.put("/extensions/:id/reject", rejectExtensionRequest);
+router.put("/extensions/:id",  updateExtensionStatus);
 
 export default router;

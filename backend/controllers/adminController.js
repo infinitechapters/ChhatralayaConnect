@@ -82,7 +82,6 @@ export const assignRoomToStudent = async (req, res) => {
 // ✅ Add Student
 export const addStudent = async (req, res) => {
   try {
-
     const {
       name,
       email,
@@ -97,7 +96,6 @@ export const addStudent = async (req, res) => {
     const parsedSemester = semester ? Number(semester) : null;
     const parsedRoomId = roomId ? Number(roomId) : null;
 
-    // Check existing
     const existingStudent = await prisma.student.findUnique({
       where: { email }
     });
@@ -121,7 +119,7 @@ export const addStudent = async (req, res) => {
         roomId: parsedRoomId,
         enrollmentNo,
         contact,
-        isVerified: true
+        isVerified: false   // ✅ IMPORTANT
       }
     });
 
@@ -159,6 +157,32 @@ export const addStudent = async (req, res) => {
 
   } catch (error) {
     res.status(500).json({ message: "Error fetching rooms" });
+  }
+};
+
+
+// VERIFY STUDENT PROFILE
+export const verifyStudentProfile = async (req, res) => {
+  try {
+    const studentId = Number(req.params.id);
+
+    const updatedStudent = await prisma.student.update({
+      where: { id: studentId },
+      data: { isVerified: true }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Student profile verified successfully",
+      student: updatedStudent
+    });
+
+  } catch (error) {
+    console.error("VERIFY ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error verifying student"
+    });
   }
 };
 
@@ -522,93 +546,62 @@ export const deleteAnnouncement = async (req, res) => {
 // GET all extension requests (Admin)
 export const getAllExtensionRequests = async (req, res) => {
   try {
-
     const requests = await prisma.extensionRequest.findMany({
-
       include: {
         student: {
           select: {
             id: true,
             name: true,
-            email: true,
-            roomNumber: true,
+            enrollmentNo: true,
+            room: {
+              select: {
+                roomNumber: true,
+                hostelNo: true
+              }
+            }
           }
         }
       },
-
       orderBy: {
         createdAt: "desc"
       }
-
     });
 
     res.status(200).json(requests);
 
   } catch (error) {
-    res.status(500).json({
-      message: "Error fetching extension requests"
-    });
+    console.error("EXTENSION FETCH ERROR:", error);
+    res.status(500).json({ message: "Error fetching requests" });
   }
 };
 
-
-
-// APPROVE extension request
-export const approveExtensionRequest = async (req, res) => {
-
+//Update extension request status (Admin)
+export const updateExtensionStatus = async (req, res) => {
   try {
-
     const requestId = Number(req.params.id);
+    const { status } = req.body;
 
-    const updatedRequest = await prisma.extensionRequest.update({
+    const validStatus = ["approved", "rejected"];
 
+    if (!validStatus.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status value"
+      });
+    }
+
+    const updated = await prisma.extensionRequest.update({
       where: { id: requestId },
-
-      data: {
-        status: "approved"
-      }
-
+      data: { status }
     });
 
     res.status(200).json({
-      message: "Extension request approved",
-      updatedRequest
+      message: `Extension ${status} successfully`,
+      updated
     });
 
   } catch (error) {
-    res.status(500).json({
-      message: "Error approving extension request"
-    });
+    console.error("UPDATE EXTENSION ERROR:", error);
+    res.status(500).json({ message: "Error updating extension" });
   }
 };
 
-
-
-// REJECT extension request
-export const rejectExtensionRequest = async (req, res) => {
-
-  try {
-
-    const requestId = Number(req.params.id);
-
-    const updatedRequest = await prisma.extensionRequest.update({
-
-      where: { id: requestId },
-
-      data: {
-        status: "rejected"
-      }
-
-    });
-
-    res.status(200).json({
-      message: "Extension request rejected",
-      updatedRequest
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      message: "Error rejecting extension request"
-    });
-  }
-};
