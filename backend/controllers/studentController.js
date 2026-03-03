@@ -5,7 +5,6 @@ export const getStudentDashboard = async (req, res) => {
   try {
     const studentId = req.user.id;
 
-    // 1️⃣ Get Student Info
     const student = await prisma.student.findUnique({
       where: { id: studentId },
       select: {
@@ -14,9 +13,13 @@ export const getStudentDashboard = async (req, res) => {
         enrollmentNo: true,
         branch: true,
         year: true,
-        roomNumber: true,
-        hostelNo: true,
         createdAt: true,
+        room: {
+          select: {
+            roomNumber: true,
+            hostelNo: true
+          }
+        }
       },
     });
 
@@ -24,7 +27,6 @@ export const getStudentDashboard = async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    // 2️⃣ Complaint Stats
     const totalComplaints = await prisma.complaint.count({
       where: { studentId },
     });
@@ -37,12 +39,10 @@ export const getStudentDashboard = async (req, res) => {
       where: { studentId, status: "resolved" },
     });
 
-    // 3️⃣ Extension Status
     const pendingExtensions = await prisma.extensionRequest.count({
       where: { studentId, status: "pending" },
     });
 
-    // 4️⃣ Stay Duration (months)
     const today = new Date();
     const joinedDate = new Date(student.createdAt);
 
@@ -50,7 +50,6 @@ export const getStudentDashboard = async (req, res) => {
       (today.getFullYear() - joinedDate.getFullYear()) * 12 +
       (today.getMonth() - joinedDate.getMonth());
 
-    // 5️⃣ Latest Announcements
     const latestAnnouncements = await prisma.announcement.findMany({
       orderBy: { createdAt: "desc" },
       take: 3,
@@ -69,8 +68,7 @@ export const getStudentDashboard = async (req, res) => {
         email: student.email,
         branch: student.branch,
         year: student.year,
-        roomNumber: student.roomNumber,
-        hostelNo: student.hostelNo,
+        room: student.room || null,
       },
       complaints: {
         total: totalComplaints,
@@ -88,7 +86,7 @@ export const getStudentDashboard = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("DASHBOARD ERROR:", error);
     res.status(500).json({ message: "Error loading dashboard" });
   }
 };
@@ -100,6 +98,14 @@ export const getStudentProfile = async (req, res) => {
 
     const student = await prisma.student.findUnique({
       where: { id: studentId },
+      include: {
+        room: {
+          select: {
+            roomNumber: true,
+            hostelNo: true,
+          },
+        },
+      },
     });
 
     if (!student) {
@@ -109,6 +115,7 @@ export const getStudentProfile = async (req, res) => {
     res.status(200).json(student);
 
   } catch (error) {
+    console.error("PROFILE ERROR:", error);
     res.status(500).json({ message: "Error fetching profile" });
   }
 };

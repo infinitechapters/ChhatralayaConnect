@@ -15,6 +15,7 @@ import Announcements from "./pages/admin/Annoucements.jsx";
 import Login from "./Login.jsx";
 import Complaint from "./pages/student/Complaint.jsx";
 import StudentProfile from "./pages/student/StudentProfile.jsx";
+import ExtensionVerify from "./pages/admin/ExtensionVerify.jsx";
 
 import ActivitiesPage from "./pages/ActivitiesPages.jsx";
 import AdministratorPage from "./pages/AdministratorPage.jsx";
@@ -31,6 +32,7 @@ function App() {
         <Route path="/admin/add-student" element={<AddStudent />} />
 
       <Route path="/admin/complaints" element={<Complaints />} />
+      <Route path="/admin/extensions" element={<ExtensionVerify />} />
       <Route path="/" element={<Dashboard />} />
       <Route path="/login" element={<Login />} />
       <Route path="/student/dashboard" element={<StudentDashboard />} />

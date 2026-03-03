@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import API from "../../services/api";
+import { useEffect } from "react";
 
 const AddStudent = () => {
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     branch: "",
     semester: "",
-    roomNumber: "",
-    hostelNo: "",
+    roomId: "",
     enrollmentNo: "",
     contact: "",
   });
@@ -18,6 +19,7 @@ const AddStudent = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [rooms, setRooms] = useState([]);
 
   const handleChange = (e) => {
     setFormData({
@@ -25,6 +27,44 @@ const AddStudent = () => {
       [e.target.name]: e.target.value,
     });
   };
+
+  useEffect(() => {
+  fetchRooms();
+}, []);
+
+const fetchRooms = async () => {
+  try {
+    const res = await API.get("/admin/vacant-rooms");
+    setRooms(res.data.rooms);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+  // 🔥 Generate Rooms 101–122 and 201–228
+  // const generateRooms = () => {
+  //   const rooms = [];
+
+  //   for (let i = 101; i <= 122; i++) {
+  //     rooms.push({
+  //       id: i,
+  //       roomNumber: i,
+  //       hostelNo: "1 (Ground Floor)",
+  //     });
+  //   }
+
+  //   for (let i = 201; i <= 228; i++) {
+  //     rooms.push({
+  //       id: i,
+  //       roomNumber: i,
+  //       hostelNo: "1 (First Floor)",
+  //     });
+  //   }
+
+  //   return rooms;
+  // };
+
+  // const roomOptions = generateRooms();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,19 +74,22 @@ const AddStudent = () => {
     setLoading(true);
 
     try {
-      const res = await API.post("/admin/add-student", formData);
+
+      const res = await API.post("/admin/add-student", {
+        ...formData,
+        roomId: Number(formData.roomId),
+        semester: Number(formData.semester),
+      });
 
       setMessage(res.data.message || "Student added successfully");
 
-      // Reset form
       setFormData({
         name: "",
         email: "",
         password: "",
         branch: "",
         semester: "",
-        roomNumber: "",
-        hostelNo: "",
+        roomId: "",
         enrollmentNo: "",
         contact: "",
       });
@@ -141,25 +184,21 @@ const AddStudent = () => {
             required
           />
 
-          <input
-            type="text"
-            name="roomNumber"
-            placeholder="Room Number"
-            value={formData.roomNumber}
-            onChange={handleChange}
-            className="border p-2 rounded"
-            required
-          />
+          {/* Room Select */}
+          <select
+  name="roomId"
+  value={formData.roomId}
+  onChange={handleChange}
+  required
+>
+  <option value="">Select Room</option>
 
-          <input
-            type="text"
-            name="hostelNo"
-            placeholder="Hostel Number"
-            value={formData.hostelNo}
-            onChange={handleChange}
-            className="border p-2 rounded"
-            required
-          />
+  {rooms.map((room) => (
+    <option key={room.id} value={room.id}>
+      Room {room.roomNumber} - Hostel {room.hostelNo}
+    </option>
+  ))}
+</select>
 
           <input
             type="text"
@@ -167,7 +206,7 @@ const AddStudent = () => {
             placeholder="Contact Number"
             value={formData.contact}
             onChange={handleChange}
-            className="border p-2 rounded col-span-2"
+            className="border p-2 rounded"
             required
           />
 

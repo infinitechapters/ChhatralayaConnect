@@ -26,8 +26,8 @@ model Student {
   year           Int?
   semester       Int?
 
-  roomNumber     String?
-  hostelNo       String?
+  roomId Int?
+room   Room? @relation(fields: [roomId], references: [id])
 
   contact        String?
   permanentAddress String?
@@ -124,6 +124,18 @@ enum FeeStatus {
   pending
   paid
   overdue
+}
+
+model Room {
+  id         Int      @id @default(autoincrement())
+  roomNumber String
+  hostelNo   String
+  capacity   Int
+  students   Student[]
+
+  createdAt  DateTime @default(now())
+
+  @@unique([roomNumber, hostelNo])
 }
 
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api.js";
 import StudentLayout from "../../layouts/StudentLayout";
@@ -10,13 +10,26 @@ const ExtensionRequest = () => {
     reason: "",
   });
 
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-
   const today = new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const fetchRequests = async () => {
+    try {
+      const res = await API.get("/students/extensions");
+      setRequests(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -46,12 +59,14 @@ const ExtensionRequest = () => {
     try {
       await API.post("/students/extension", formData);
 
-      setMessage("Your hostel stay extension request has been submitted successfully.");
+      setMessage("Extension request submitted successfully.");
 
       setFormData({
         tillDate: "",
         reason: ""
       });
+
+      fetchRequests(); // refresh list
 
     } catch (err) {
 
@@ -74,15 +89,11 @@ const ExtensionRequest = () => {
 
       <div className="min-h-screen bg-gray-100 py-10 px-4">
 
-        <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl p-8">
+        <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl p-8">
 
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">
-            Hostel Stay Extension Application
+          <h2 className="text-3xl font-bold mb-6">
+            Hostel Extension Application
           </h2>
-
-          <p className="text-gray-500 mb-6">
-            Submit a formal request to extend your hostel stay due to work or other valid reasons.
-          </p>
 
           {error && (
             <div className="bg-red-100 text-red-600 p-3 rounded mb-4">
@@ -96,25 +107,12 @@ const ExtensionRequest = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* FORM */}
+          <form onSubmit={handleSubmit} className="space-y-6 mb-10">
 
-            {/* Current Date */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Application Date
-              </label>
-              <input
-                type="text"
-                value={today}
-                disabled
-                className="w-full border rounded-lg px-4 py-2 bg-gray-100"
-              />
-            </div>
-
-            {/* Extension Till Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Requested Extension Till Date *
+              <label className="block text-sm mb-1">
+                Extension for the Date *
               </label>
               <input
                 type="date"
@@ -125,41 +123,81 @@ const ExtensionRequest = () => {
               />
             </div>
 
-            {/* Reason */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Reason for Extension *
+              <label className="block text-sm mb-1">
+                Reason *
               </label>
               <textarea
                 name="reason"
                 value={formData.reason}
                 onChange={handleChange}
-                rows="5"
-                placeholder="Example: I request extension of my hostel stay due to ongoing internship/work commitment..."
-                className="w-full border rounded-lg px-4 py-2 resize-none"
+                rows="4"
+                className="w-full border rounded-lg px-4 py-2"
               />
             </div>
 
-            {/* Declaration */}
-            <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
-              I hereby declare that the information provided above is true and I
-              understand that approval is subject to hostel administration rules.
-            </div>
-
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 rounded-lg font-semibold text-white transition ${
-                loading
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
             >
-              {loading ? "Submitting Request..." : "Submit Extension Request"}
+              {loading ? "Submitting..." : "Submit Request"}
             </button>
 
           </form>
+
+          {/* REQUEST HISTORY */}
+          <h3 className="text-xl font-semibold mb-4">
+            My Extension Requests
+          </h3>
+
+          <div className="overflow-x-auto">
+            <table className="w-full bg-gray-50 rounded-lg">
+              <thead className="bg-gray-200">
+                <tr>
+                  <th className="p-3 text-left">Till Date</th>
+                  <th className="p-3 text-left">Reason</th>
+                  <th className="p-3 text-left">Status</th>
+                  <th className="p-3 text-left">Applied On</th>
+                </tr>
+              </thead>
+              <tbody>
+                {requests.map((req) => (
+                  <tr key={req.id} className="border-t">
+                    <td className="p-3">
+                      {new Date(req.tillDate).toLocaleDateString()}
+                    </td>
+
+                    <td className="p-3">{req.reason}</td>
+
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded text-sm ${
+                        req.status === "pending"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : req.status === "approved"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}>
+                        {req.status}
+                      </span>
+                    </td>
+
+                    <td className="p-3">
+                      {new Date(req.createdAt).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+
+                {requests.length === 0 && (
+                  <tr>
+                    <td colSpan="4" className="p-4 text-center text-gray-500">
+                      No extension requests found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
         </div>
 

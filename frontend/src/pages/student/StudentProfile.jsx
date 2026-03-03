@@ -68,8 +68,17 @@ const StudentProfile = () => {
           <Input label="Name" value={profile.name} disabled />
           <Input label="Email" value={profile.email} disabled />
           <Input label="Enrollment No" value={profile.enrollmentNo} disabled />
-          <Input label="Room Number" value={profile.roomNumber} disabled />
-          <Input label="Hostel No" value={profile.hostelNo} disabled />
+         <Input
+  label="Room Number"
+  value={profile.room?.roomNumber || "Not Assigned"}
+  disabled
+/>
+
+<Input
+  label="Hostel No"
+  value={profile.room?.hostelNo || "-"}
+  disabled
+/>
 
         {/* Editable Fields */}
 

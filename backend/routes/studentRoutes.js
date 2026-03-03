@@ -25,7 +25,7 @@ router.put("/profile", updateStudentProfile);
 router.get("/complaints", getStudentComplaints);
 router.post("/complaints", submitComplaint);;
 
-router.post("/extensionRequest", submitExtensionRequest);
-router.get("/extension", getExtensionRequests);
+router.post("/extension", submitExtensionRequest);
+router.get("/extensions", getExtensionRequests);
 
 export default router;

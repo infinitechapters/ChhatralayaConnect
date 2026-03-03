@@ -57,7 +57,7 @@ const Complaints = () => {
         ) : (
           complaints.map((c) => (
             <div
-              key={c._id}
+              key={c.id}
               className="border-b py-4 flex justify-between items-center"
             >
               <div>
@@ -75,7 +75,7 @@ const Complaints = () => {
               <select
                 value={c.status}
                 onChange={(e) =>
-                  handleStatusChange(c._id, e.target.value)
+                  handleStatusChange(c.id, e.target.value)
                 }
                 className="border px-3 py-1 rounded"
               >
