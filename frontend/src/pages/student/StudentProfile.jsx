@@ -33,27 +33,6 @@ const StudentProfile = () => {
     }
   };
 
-  // ── NEW: profile picture upload ──────────────────────────────
-  const handlePicUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploading(true);
-    setMessage(""); setError("");
-    try {
-      const form = new FormData();
-      form.append("profilePic", file);
-      const res = await API.post("/students/profile/picture", form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setProfile(prev => ({ ...prev, profilePic: res.data.profilePic }));
-      setMessage("Profile picture updated!");
-    } catch (err) {
-      setError("Failed to upload picture");
-    } finally {
-      setUploading(false);
-    }
-  };
-
   if (!profile) return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", height:"100vh", background:"#f8fafc", gap:16 }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -76,6 +55,28 @@ const StudentProfile = () => {
   const initials = profile.name
     ? profile.name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase()
     : "?";
+
+  // ── NEW: profile picture upload ──────────────────────────────
+  const handlePicUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    setMessage(""); setError("");
+    try {
+      const form = new FormData();
+      form.append("profilePic", file);
+      const res = await API.post("/students/profile/picture", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setProfile(prev => ({ ...prev, profilePic: res.data.profilePic }));
+      setMessage("Profile picture updated!");
+    } catch (err) {
+      setError("Failed to upload picture");
+    } finally {
+      setUploading(false);
+    }
+  };
+
 
   return (
     <StudentLayout>
