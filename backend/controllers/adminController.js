@@ -571,10 +571,18 @@ console.error("STACK:", error.stack);
 };
 
 
-// GET ALL ANNOUNCEMENTS
+
 export const getAllAnnouncements = async (req, res) => {
   try {
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5); // 👈 5 days back
+
     const announcements = await prisma.announcement.findMany({
+      where: {
+        createdAt: {
+          gte: fiveDaysAgo, // only announcements from last 5 days
+        },
+      },
       include: {
         createdBy: {
           select: {
@@ -596,6 +604,32 @@ export const getAllAnnouncements = async (req, res) => {
     res.status(500).json({ message: "Error fetching announcements" });
   }
 };
+
+// GET ALL ANNOUNCEMENTS
+// export const getAllAnnouncements = async (req, res) => {
+//   try {
+//     const announcements = await prisma.announcement.findMany({
+//       include: {
+//         createdBy: {
+//           select: {
+//             id: true,
+//             name: true,
+//             hostelNo: true,
+//           },
+//         },
+//       },
+//       orderBy: {
+//         createdAt: "desc",
+//       },
+//     });
+
+//     res.status(200).json(announcements);
+
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Error fetching announcements" });
+//   }
+// };
 
 
 

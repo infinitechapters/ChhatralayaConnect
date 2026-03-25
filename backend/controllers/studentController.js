@@ -1,5 +1,39 @@
 import prisma from "../prismaClient.js";
+//STUDENT PROFILE PICTURE 
+import imagekit from "../src/config/imagekit.js";
 
+// UPLOAD PROFILE PICTURE
+export const uploadProfilePicture = async (req, res) => {
+  try {
+    const studentId = req.user.id;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    // Upload buffer to ImageKit
+    const result = await imagekit.upload({
+      file: req.file.buffer,
+      fileName: `student_${studentId}_${Date.now()}`,
+      folder: "/hostel/profiles",
+    });
+
+    // Save URL to DB
+    const updated = await prisma.student.update({
+      where: { id: studentId },
+      data: { profilePic: result.url },
+    });
+
+    res.status(200).json({
+      message: "Profile picture updated",
+      profilePic: result.url,
+    });
+
+  } catch (error) {
+    console.error("UPLOAD ERROR:", error);
+    res.status(500).json({ message: "Upload failed" });
+  }
+};
 // STUDENT DASHBOARD
 export const getStudentDashboard = async (req, res) => {
   try {

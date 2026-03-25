@@ -25,7 +25,7 @@ const StaffCard = ({ name, designation, email, phone, imageUrl, index = 0 }) => 
       `}
     >
       {/* Top gradient banner */}
-      <div className={`h-28 w-full bg-gradient-to-br ${accent.from} ${accent.to} relative overflow-hidden`}>
+      <div className={`h-28 w-full bg-linear-to-br ${accent.from} ${accent.to} relative overflow-hidden`}>
         {/* Decorative circles on banner */}
         <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10" />
         <div className="absolute -bottom-8 -left-4 w-20 h-20 rounded-full bg-white/10" />
@@ -58,7 +58,7 @@ const StaffCard = ({ name, designation, email, phone, imageUrl, index = 0 }) => 
         </span>
 
         {/* Divider */}
-        <div className={`w-10 h-0.5 rounded-full bg-gradient-to-r ${accent.from} ${accent.to} mt-1`} />
+        <div className={`w-10 h-0.5 rounded-full bg-linear-to-r ${accent.from} ${accent.to} mt-1`} />
 
         {/* Contact info */}
         <div className="w-full mt-1 space-y-2">
@@ -84,7 +84,7 @@ const StaffCard = ({ name, designation, email, phone, imageUrl, index = 0 }) => 
         <button
           className={`
             mt-2 w-full py-2 rounded-xl text-white text-xs font-bold tracking-widest uppercase
-            bg-gradient-to-r ${accent.from} ${accent.to}
+            bg-linear-to-r ${accent.from} ${accent.to}
             shadow-md hover:shadow-lg hover:brightness-110
             transition-all duration-300
             ${hovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}
