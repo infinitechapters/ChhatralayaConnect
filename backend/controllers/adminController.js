@@ -1,5 +1,6 @@
 import prisma from "../prismaClient.js";
 import bcrypt from "bcryptjs";
+import { sendAnnouncementMail } from "../utils/sendMail.js";
 
 
 // GET DASHBOARD STATS
@@ -51,6 +52,28 @@ export const getAllStudents = async (req, res) => {
   }
 };
 
+export const getStudentById = async (req, res) => {
+  try {
+    const studentId = Number(req.params.id);
+
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+      include: {
+        room: true
+      }
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.status(200).json(student);
+
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching student" });
+  }
+};
+
 //assign room to student
 export const assignRoomToStudent = async (req, res) => {
   try {
@@ -77,6 +100,40 @@ export const assignRoomToStudent = async (req, res) => {
   }
 };
 
+export const sendAnnouncementEmail = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    // fetch the announcement
+    const announcement = await prisma.announcement.findUnique({
+      where: { id },
+    });
+
+    if (!announcement) {
+      return res.status(404).json({ message: "Announcement not found" });
+    }
+
+    // fetch all student emails from db
+    const students = await prisma.student.findMany({
+      select: { email: true },
+    });
+
+    const emails = students.map(s => s.email).filter(Boolean);
+
+    if (emails.length === 0) {
+      return res.status(400).json({ message: "No student emails found" });
+    }
+
+    await sendAnnouncementMail(emails, announcement.title, announcement.description);
+
+    // ✅ CORRECT — wrap in backticks
+    res.status(200).json({ message: `Mail sent to ${emails.length} students` });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error sending emails" });
+  }
+};
 
 
 // ✅ Add Student
@@ -134,6 +191,75 @@ export const addStudent = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error"
+    });
+  }
+};
+
+// UPDATE STUDENT BY ADMIN
+export const updateStudentByAdmin = async (req, res) => {
+  try {
+    const studentId = Number(req.params.id);
+
+    const {
+      enrollmentNo,
+      name,
+      email,
+      branch,
+      year,
+      semester,
+      contact,
+      permanentAddress,
+      parentName,
+      parentNumber,
+      LgName,
+      LgNumber,
+      LgAddress
+    } = req.body;
+
+    // Optional: Check if student is verified first
+    const student = await prisma.student.findUnique({
+      where: { id: studentId }
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // 🔒 Only allow update if verified (optional logic)
+    // if (!student.isVerified) {
+    //   return res.status(400).json({
+    //     message: "Student is not verified yet"
+    //   });
+    // }
+
+    const updatedStudent = await prisma.student.update({
+      where: { id: studentId },
+      data: {
+        enrollmentNo,
+        name,
+        email,
+        branch,
+        year: year ? Number(year) : undefined,
+        semester: semester ? Number(semester) : undefined,
+        contact,
+        permanentAddress,
+        parentName,
+        parentNumber,
+        LgName,
+        LgNumber,
+        LgAddress
+      }
+    });
+
+    res.status(200).json({
+      message: "Student updated by admin successfully",
+      student: updatedStudent
+    });
+
+  } catch (error) {
+    console.error("ADMIN UPDATE ERROR:", error);
+    res.status(500).json({
+      message: "Error updating student"
     });
   }
 };
@@ -220,7 +346,6 @@ export const getVerifiedStudents = async (req, res) => {
 };
 
 
-
 // GET ALL 
 
 export const getAllComplaints = async (req, res) => {
@@ -262,11 +387,6 @@ export const getAllComplaints = async (req, res) => {
 };
 
 
-/*
-====================================
-GET ACTIVE COMPLAINTS
-
-*/
 export const getActiveComplaints = async (req, res) => {
 
   try {
@@ -420,14 +540,6 @@ export const updateComplaintStatus = async (req, res) => {
 };
 
 
-
-
-
-
-
-
-
-
 // CREATE ANNOUNCEMENT
 export const createAnnouncement = async (req, res) => {
   try {
@@ -533,14 +645,6 @@ export const deleteAnnouncement = async (req, res) => {
     res.status(500).json({ message: "Error deleting announcement" });
   }
 };
-
-
-
-
-
-
-
-
 
 
 // GET all extension requests (Admin)

@@ -101,6 +101,7 @@ const Navbar = ({ role }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("role");
     navigate("/login");
   };

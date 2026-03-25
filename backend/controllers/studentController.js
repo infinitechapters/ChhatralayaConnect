@@ -123,7 +123,14 @@ export const getStudentProfile = async (req, res) => {
 // UPDATE PROFILE
 export const updateStudentProfile = async (req, res) => {
   try {
+    
     const studentId = req.user.id;
+
+    if (studentId.isVerified) {
+  return res.status(403).json({
+    message: "Profile locked after verification"
+  });
+}
 
     const {
       branch,

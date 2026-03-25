@@ -1,10 +1,12 @@
 import express from "express";
+import { updateStudentByAdmin } from "../controllers/adminController.js";
 
 import {
   addStudent,
   assignRoomToStudent,
   getAllStudents,
   getDashboardStats,
+  getStudentById,
   getVacantRooms,
   verifyStudentProfile
 } from "../controllers/adminController.js";
@@ -31,10 +33,14 @@ import {
 } from "../controllers/adminController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
+import { sendAnnouncementEmail } from "../controllers/adminController.js";
+
 
 const router = express.Router();
 
 router.use(protect); // Protect all routes below
+
+router.post("/announcements/:id/send-mail", sendAnnouncementEmail);
 
 // Add student
 router.post("/add-student", addStudent);
@@ -68,7 +74,12 @@ router.get("/announcements", getAllAnnouncements);
 
 router.put("/announcements/:id", updateAnnouncement);
 
-router.delete("/announcements/:id", deleteAnnouncement);
+router.get("/students/:id", getStudentById); 
+
+router.delete("/announcements/:id", deleteAnnouncement); 
+
+// Add this route (put it near the other student routes)
+router.put("/students/:id", updateStudentByAdmin);
 
 router.put("/verifyStudent/:id", verifyStudentProfile);
 

@@ -439,7 +439,7 @@ const ExtensionRequest = () => {
 
                 {/* Date Section */}
                 <div>
-                  <div className="section-label">Extension Till Date</div>
+                  <div className="section-label">Extension On Date</div>
                   <div style={{ position:"relative" }}>
                     <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)", fontSize:15, pointerEvents:"none" }}>📅</span>
                     <input
