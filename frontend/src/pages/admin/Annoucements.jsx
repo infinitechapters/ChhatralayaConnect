@@ -170,6 +170,21 @@ const Announcements = () => {
         }
     };
 
+const handleSendMail = async (id) => {
+  try {
+    const token = localStorage.getItem("accessToken"); // 👈 add this
+    const res = await fetch(`http://localhost:5000/api/admin/announcements/${id}/send-mail`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    alert(data.message);
+  } catch (err) {
+    console.error(err);
+  }
+};
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!title || !message) return;
@@ -336,6 +351,7 @@ const Announcements = () => {
                             </div>
                         </div>
 
+                       
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {/* Title */}
                             <div style={{ position:"relative" }}>
@@ -480,10 +496,22 @@ const Announcements = () => {
                                             </div>
 
                                             {/* Right chevron */}
-                                            <svg style={{ color:"#cbd5e1", flexShrink:0, marginTop:6, transition:"color 0.2s" }}
-                                                width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                            </svg>
+                                            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8, flexShrink:0 }}>
+  <button
+    onClick={() => handleSendMail(a.id)}
+    style={{
+      background:"#eef2ff", border:"1.5px solid #c7d2fe",
+      borderRadius:8, padding:"5px 10px",
+      fontSize:11, fontWeight:700, color:"#4f46e5",
+      cursor:"pointer", whiteSpace:"nowrap"
+    }}>
+    📧 Send Mail
+  </button>
+  <svg style={{ color:"#cbd5e1", transition:"color 0.2s" }}
+    width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+  </svg>
+</div>
                                         </div>
                                     );
                                 })}

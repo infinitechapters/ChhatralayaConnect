@@ -210,7 +210,21 @@ export default function Dashboard() {
   const [menuOpen,  setMenuOpen]  = useState(false);
   const [counts,    setCounts]    = useState([0, 0, 0, 0]);
   const statsRef = useRef(null);
-  const targets  = [500, 200, 247, 10];
+  const targets = [500, 200, 247, 10];
+  
+  //announcement ticker
+
+  const [announcements, setAnnouncements] = useState([]);
+useEffect(() => {
+  fetch("http://localhost:5000/api/admin/announcements")
+    .then(res => res.json())
+    .then(data => {
+      const items = data.map(a => `${a.title} — ${a.description}`);
+      setAnnouncements(items);
+    })
+    .catch(err => console.error("Failed to fetch announcements", err));
+}, []);
+  //end of announcement ticker
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80);
@@ -252,6 +266,17 @@ export default function Dashboard() {
           background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 60%);
           pointer-events:none;
         }
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-track {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker-scroll 30s linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused; }
+
         @keyframes fadeUp {
           from { opacity:0; transform:translateY(28px); }
           to   { opacity:1; transform:translateY(0);    }
@@ -396,6 +421,25 @@ export default function Dashboard() {
             <span className="font-body text-white text-[9px] tracking-[0.2em] uppercase rotate-90 origin-center translate-x-3">Scroll</span>
           </div>
         </section>
+
+        {/* ── ANNOUNCEMENT TICKER ── */}
+{announcements.length > 0 && (
+  <div style={{ background: "#1e1b4b", borderTop: "1px solid #4f46e5", borderBottom: "1px solid #4f46e5", overflow: "hidden", display: "flex", alignItems: "center", height: "44px" }}>
+    <div style={{ background: "#4f46e5", color: "#e0e7ff", fontSize: "11px", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", padding: "0 20px", height: "100%", display: "flex", alignItems: "center", whiteSpace: "nowrap", flexShrink: 0 }}>
+      📢 Announcements
+    </div>
+    <div style={{ overflow: "hidden", flex: 1 }}>
+      <div className="ticker-track">
+        {[...announcements, ...announcements].map((text, i) => (
+          <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: "8px", color: "#c7d2fe", fontSize: "13px", paddingRight: "48px", fontFamily: "'DM Sans', sans-serif" }}>
+            <span style={{ width: "5px", height: "5px", background: "#818cf8", borderRadius: "50%", flexShrink: 0, display: "inline-block" }} />
+            {text}
+          </span>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
 
         {/* ── STATS BAND ── */}
         <div ref={statsRef} className="bg-indigo-950 border-y border-indigo-900/50">

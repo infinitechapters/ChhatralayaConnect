@@ -31,10 +31,18 @@ import {
 } from "../controllers/adminController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
+import { sendAnnouncementEmail } from "../controllers/adminController.js";
 
+// inside your routes (protected, so it stays below router.use(protect))
 const router = express.Router();
+router.get("/announcements", getAllAnnouncements);
+
+
 
 router.use(protect); // Protect all routes below
+
+router.post("/announcements/:id/send-mail", sendAnnouncementEmail);
+
 
 // Add student
 router.post("/add-student", addStudent);
@@ -64,7 +72,6 @@ router.put("/assign-room", assignRoomToStudent);
 
 router.post("/announcements" ,createAnnouncement);
 
-router.get("/announcements", getAllAnnouncements);
 
 router.put("/announcements/:id", updateAnnouncement);
 

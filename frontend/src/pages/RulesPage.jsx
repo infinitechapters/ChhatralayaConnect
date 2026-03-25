@@ -137,26 +137,26 @@ const RulesPage = () => {
     <div className="min-h-screen bg-slate-50 font-sans">
 
       {/* ── Hero Header ── */}
-      <div className="relative bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 px-10 pt-16 pb-14 overflow-hidden">
+      <div className="relative bg-linear-to-br from-slate-900 via-blue-950 to-slate-900 px-10 pt-16 pb-14 overflow-hidden">
 
         {/* Decorative rings */}
-        <div className="absolute -top-16 -right-10 w-80 h-80 rounded-full border border-white/10 bg-white/[0.03] pointer-events-none" />
-        <div className="absolute top-8 right-52 w-40 h-40 rounded-full border border-white/[0.06] pointer-events-none" />
-        <div className="absolute -bottom-24 -left-14 w-64 h-64 rounded-full border border-white/[0.05] bg-white/[0.02] pointer-events-none" />
+        <div className="absolute -top-16 -right-10 w-80 h-80 rounded-full border border-white/10 bg-white/3 pointer-events-none" />
+        <div className="absolute top-8 right-52 w-40 h-40 rounded-full border border-white/6 pointer-events-none" />
+        <div className="absolute -bottom-24 -left-14 w-64 h-64 rounded-full border border-white/5 bg-white/2 pointer-events-none" />
 
         <div className="max-w-3xl mx-auto relative z-10">
 
           {/* Eyebrow */}
           <div className={`inline-flex items-center gap-2 bg-white/[0.07] border border-white/10 rounded-full px-4 py-1.5 mb-6 transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
             <span className="text-base">📜</span>
-            <span className="text-white/70 text-[11px] font-bold tracking-[0.1em] uppercase">Guidelines</span>
+            <span className="text-white/70 text-[11px] font-bold tracking-widest uppercase">Guidelines</span>
           </div>
 
           {/* Title */}
           <h1 className={`text-5xl font-extrabold text-white leading-[1.1] tracking-tight mb-4 font-serif transition-all duration-700 delay-75 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             Hostel Rules &amp;
             <br />
-            <span className="bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">
               Regulations
             </span>
           </h1>
@@ -173,7 +173,7 @@ const RulesPage = () => {
               { v: `${totalRules}`,       l: "Total Rules", icon: "📌" },
               { v: "Strict",              l: "Enforcement", icon: "⚖️" },
             ].map((s) => (
-              <div key={s.l} className="bg-white/[0.07] border border-white/10 rounded-2xl px-4 py-3 text-center min-w-[90px]">
+              <div key={s.l} className="bg-white/[0.07] border border-white/10 rounded-2xl px-4 py-3 text-center min-w-22.5">
                 <div className="text-lg mb-1">{s.icon}</div>
                 <div className="text-xl font-extrabold text-white font-serif leading-none">{s.v}</div>
                 <div className="text-[10px] text-white/40 font-semibold tracking-widest uppercase mt-1">{s.l}</div>
@@ -206,7 +206,7 @@ const RulesPage = () => {
 
         {/* Section label */}
         <div className="flex items-center gap-3 mb-7">
-          <div className="w-6 h-0.5 rounded-full bg-gradient-to-r from-blue-500 to-violet-500" />
+          <div className="w-6 h-0.5 rounded-full bg-linear-to-r from-blue-500 to-violet-500" />
           <span className="text-[11px] font-bold text-slate-400 tracking-[0.12em] uppercase">
             All Sections — {rulesData.length} categories
           </span>
@@ -224,7 +224,7 @@ const RulesPage = () => {
         ))}
 
         {/* Footer acknowledgement box */}
-        <div className="mt-4 bg-gradient-to-br from-slate-900 to-blue-950 rounded-3xl px-8 py-7 flex flex-col md:flex-row items-center gap-5 shadow-xl text-center md:text-left">
+        <div className="mt-4 bg-linear-to-br from-slate-900 to-blue-950 rounded-3xl px-8 py-7 flex flex-col md:flex-row items-center gap-5 shadow-xl text-center md:text-left">
           <span className="text-4xl">🤝</span>
           <div className="flex-1">
             <h3 className="text-white font-bold text-lg font-serif mb-1">I Acknowledge These Rules</h3>

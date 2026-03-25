@@ -400,7 +400,7 @@ const AddStudent = () => {
           <div className="bg-white border border-slate-200/80 rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden">
 
             {/* Card top accent */}
-            <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-400" />
+            <div className="h-1 w-full bg-linear-to-r from-indigo-500 via-violet-500 to-indigo-400" />
 
             <div className="p-8">
               <form onSubmit={handleSubmit}>

@@ -36,7 +36,7 @@ const RulesCard = ({ title, rules, icon, index }) => {
 
       {/* Card Header */}
       <div
-        className={`bg-gradient-to-r ${a.from} ${a.to} px-7 py-5 flex items-center justify-between cursor-pointer select-none`}
+        className={`bg-linear-to-r ${a.from} ${a.to} px-7 py-5 flex items-center justify-between cursor-pointer select-none`}
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-4">
