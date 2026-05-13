@@ -59,7 +59,7 @@ import React from "react";
 import StaffCard from "../components/StaffCard";
 import warden1 from "../assets/Warden1.png";
 import warden2 from "../assets/Warden2.png";
-import warden3 from "../assets/Warden3.jpeg";
+import warden3 from "../assets/warden3.jpeg";
 import Caretaker from "../assets/caretaker.jpeg";
 
 
