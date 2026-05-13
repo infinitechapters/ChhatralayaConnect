@@ -1,3 +1,4 @@
+import axios from "axios";
 import API from "./api";
 
 export const getDashboard = () =>
@@ -17,3 +18,9 @@ export const getAllAnnouncements = () =>
 
 export const createAnnouncement = (data) =>
   API.post("/admin/announcements", data);
+
+export const generateAnnouncementAI = (prompt) =>
+  API.post("/admin/generate-announcement", { prompt });
+
+export const recommendRoom = (studentId) =>
+  API.get(`/admin/students/${studentId}/recommend-room`);

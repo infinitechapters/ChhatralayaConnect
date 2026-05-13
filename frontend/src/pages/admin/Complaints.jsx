@@ -341,11 +341,60 @@ const Complaints = () => {
                         <p className="font-body text-slate-500 text-sm leading-relaxed mb-2">
                           {c.description}
                         </p>
+                         <div className="flex gap-2 flex-wrap mb-2">
+
+  <span
+    style={{
+      background:"#eef2ff",
+      color:"#4f46e5",
+      border:"1px solid #c7d2fe",
+      borderRadius:"999px",
+      padding:"3px 10px",
+      fontSize:"10px",
+      fontWeight:"700",
+      letterSpacing:"0.08em",
+      textTransform:"uppercase"
+    }}
+  >
+    {c.category || "General"}
+  </span>
+
+  <span
+    style={{
+      background:
+        c.priority === "High"
+          ? "#fef2f2"
+          : c.priority === "Medium"
+          ? "#fff7ed"
+          : "#f0fdf4",
+
+      color:
+        c.priority === "High"
+          ? "#dc2626"
+          : c.priority === "Medium"
+          ? "#ea580c"
+          : "#16a34a",
+
+      borderRadius:"999px",
+      padding:"3px 10px",
+      fontSize:"10px",
+      fontWeight:"700",
+      letterSpacing:"0.08em",
+      textTransform:"uppercase"
+    }}
+  >
+    {c.priority || "Low"} Priority
+  </span>
+
+</div>
 
                         <div className="flex items-center gap-1.5">
                           <span style={{ fontSize:11 }}>👤</span>
                           <span className="font-body text-slate-400" style={{ fontSize:11, fontWeight:500 }}>
                             {c.student?.name || "Unknown Student"}
+                          </span>
+                          <span className="font-body text-slate-400" style={{ fontSize:11, fontWeight:500 }}>
+                            {c.student?.room?.roomNumber || "Unknown Student"}
                           </span>
                         </div>
                       </div>

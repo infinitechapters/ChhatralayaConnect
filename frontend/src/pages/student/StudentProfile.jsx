@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import API from "../../services/api";
 import StudentLayout from "../../layouts/StudentLayout";
 
@@ -6,6 +6,8 @@ const StudentProfile = () => {
   const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState("");
   const [error,   setError]   = useState("");
+  const [uploading,     setUploading]     = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => { fetchProfile(); }, []);
 
@@ -173,9 +175,48 @@ const StudentProfile = () => {
             <div style={{ position:"absolute", bottom:-30, right:80, width:100, height:100, borderRadius:"50%", border:"1px solid rgba(255,255,255,0.06)", pointerEvents:"none" }} />
 
             <div style={{ display:"flex", alignItems:"center", gap:20, position:"relative", zIndex:1 }}>
-              <div style={{ width:72, height:72, borderRadius:"50%", background:"rgba(255,255,255,0.15)", border:"2px solid rgba(255,255,255,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Cormorant Garamond',serif", fontSize:28, fontWeight:700, color:"white", flexShrink:0 }}>
+              {/* <div style={{ width:72, height:72, borderRadius:"50%", background:"rgba(255,255,255,0.15)", border:"2px solid rgba(255,255,255,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Cormorant Garamond',serif", fontSize:28, fontWeight:700, color:"white", flexShrink:0 }}>
                 {initials}
+              </div> */}
+
+             <div className="avatar-wrap" onClick={() => fileInputRef.current?.click()}
+                title="Click to change photo"
+                style={{ width:80, height:80, borderRadius:"50%", flexShrink:0 }}>
+
+                {profile.profilePic ? (
+                  <img src={profile.profilePic} alt="Profile"
+                    style={{ width:80, height:80, borderRadius:"50%", objectFit:"cover", border:"2px solid rgba(255,255,255,0.35)", display:"block" }} />
+                ) : (
+                  <div style={{ width:80, height:80, borderRadius:"50%", background:"rgba(255,255,255,0.15)", border:"2px solid rgba(255,255,255,0.3)", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Cormorant Garamond',serif", fontSize:30, fontWeight:700, color:"white" }}>
+                    {uploading ? <div className="upload-spinner" /> : initials}
+                  </div>
+                )}
+
+                <div className="avatar-overlay" style={{ borderRadius:"50%" }}>
+                  {uploading ? (
+                    <div className="upload-spinner" />
+                  ) : (
+                    <>
+                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:9, fontWeight:700, color:"white", letterSpacing:"0.05em" }}>CHANGE</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Hidden file input — logic unchanged */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display:"none" }}
+                  onChange={handlePicUpload}
+                />
               </div>
+
+
               <div>
                 <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:26, fontWeight:700, color:"white", lineHeight:1.1, marginBottom:4 }}>
                   {profile.name}

@@ -1,5 +1,5 @@
 import express from "express";
-import { updateStudentByAdmin } from "../controllers/adminController.js";
+import { generateAnnouncement, recommendRoomTemp, updateStudentByAdmin } from "../controllers/adminController.js";
 
 import {
   addStudent,
@@ -53,6 +53,11 @@ router.get("/dashboard", getDashboardStats);
 
 // Get verified students
 router.get("/students", getAllStudents);
+//Recommend room
+router.post(
+  "/recommend-room-temp",
+  recommendRoomTemp
+);
 // Get all complaints
 router.get("/complaints", getAllComplaints);
 
@@ -73,6 +78,11 @@ router.put("/assign-room", assignRoomToStudent);
 // Announcement Routes,
 
 router.post("/announcements" ,createAnnouncement);
+
+router.post(
+  "/generate-announcement",
+  generateAnnouncement
+);
 
 
 router.put("/announcements/:id", updateAnnouncement);

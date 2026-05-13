@@ -1,6 +1,7 @@
 import prisma from "../prismaClient.js";
 import bcrypt from "bcryptjs";
 import { sendAnnouncementMail } from "../utils/sendMail.js";
+import { generateAnnouncementAI } from "../services/aiServices.js";
 
 
 // GET DASHBOARD STATS
@@ -147,7 +148,8 @@ export const addStudent = async (req, res) => {
       semester,
       roomId,
       enrollmentNo,
-      contact
+      contact,
+      admissionDate   
     } = req.body;
 
     const parsedSemester = semester ? Number(semester) : null;
@@ -176,7 +178,8 @@ export const addStudent = async (req, res) => {
         roomId: parsedRoomId,
         enrollmentNo,
         contact,
-        isVerified: false   // ✅ IMPORTANT
+        isVerified: false,
+        admissionDate: admissionDate ? new Date(admissionDate) : new Date(),   // ✅ IMPORTANT
       }
     });
 
@@ -213,7 +216,8 @@ export const updateStudentByAdmin = async (req, res) => {
       parentNumber,
       LgName,
       LgNumber,
-      LgAddress
+      LgAddress,
+      admissionDate  
     } = req.body;
 
     // Optional: Check if student is verified first
@@ -341,6 +345,78 @@ export const getVerifiedStudents = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error"
+    });
+  }
+};
+
+//Room allocation recommendation AI
+export const recommendRoomTemp = async (req, res) => {
+
+  try {
+
+    const { branch, semester } = req.body;
+
+    const rooms = await prisma.room.findMany({
+      include: {
+        students: true
+      }
+    });
+
+    let bestRoom = null;
+    let bestScore = -1;
+    let bestReasons = [];
+
+    for (const room of rooms) {
+
+      if (room.students.length >= room.capacity) {
+        continue;
+      }
+
+      let score = 0;
+      let reasons = [];
+
+      score += (room.capacity - room.students.length);
+
+      for (const roommate of room.students) {
+
+        if (roommate.branch === branch) {
+          score += 5;
+          reasons.push("Same branch students");
+        }
+
+        if (roommate.semester === Number(semester)) {
+          score += 4;
+          reasons.push("Same semester students");
+        }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestRoom = room;
+        bestReasons = [...new Set(reasons)];
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+
+      recommendedRoom: bestRoom
+        ? {
+            roomNumber: bestRoom.roomNumber,
+            hostelNo: bestRoom.hostelNo,
+            score: bestScore,
+            reasons: bestReasons
+          }
+        : null
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Error recommending room"
     });
   }
 };
@@ -478,10 +554,6 @@ export const getResolvedComplaints = async (req, res) => {
   }
 
 };
-
-
-
-
 /*
 ====================================
 UPDATE STATUS
@@ -570,7 +642,34 @@ console.error("STACK:", error.stack);
   }
 };
 
+export const generateAnnouncement = async (req, res) => {
 
+  try {
+
+    const { prompt } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({
+        success: false,
+        message: "Prompt is required"
+      });
+    }
+
+    const content = await generateAnnouncementAI(prompt);
+
+    res.status(200).json({
+      success: true,
+      content
+    });
+
+  } catch (error) {
+   console.log("AI ANNOUNCEMENT ERROR:", error);
+
+   res.status(500).json({
+      message: error.message,
+   });
+}
+};
 
 export const getAllAnnouncements = async (req, res) => {
   try {

@@ -233,6 +233,7 @@
 import React, { useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import API from "../../services/api";
+import { recommendRoom } from "../../services/adminApi";
 import { useEffect } from "react";
 
 const AddStudent = () => {
@@ -246,12 +247,15 @@ const AddStudent = () => {
     roomId: "",
     enrollmentNo: "",
     contact: "",
+    admissionDate: "",  
   });
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [rooms, setRooms] = useState([]);
+  const [recommendedRoom, setRecommendedRoom] = useState(null);
+const [recommendationLoading, setRecommendationLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -270,6 +274,34 @@ const AddStudent = () => {
     }
   };
 
+  const handleRecommendRoom = async () => {
+
+  try {
+
+    setRecommendationLoading(true);
+
+    const tempStudent = {
+      branch: formData.branch,
+      semester: Number(formData.semester)
+    };
+
+    const res = await API.post(
+      "/admin/recommend-room-temp",
+      tempStudent
+    );
+
+    setRecommendedRoom(res.data.recommendedRoom);
+
+  } catch (error) {
+
+    console.error(error);
+
+  } finally {
+
+    setRecommendationLoading(false);
+  }
+};
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -282,7 +314,7 @@ const AddStudent = () => {
         semester: Number(formData.semester),
       });
       setMessage(res.data.message || "Student added successfully");
-      setFormData({ name: "", email: "", password: "", branch: "", semester: "", roomId: "", enrollmentNo: "", contact: "" });
+      setFormData({ name: "", email: "", password: "", branch: "", semester: "", roomId: "", enrollmentNo: "", contact: "" ,admissionDate: "", });
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add student");
     } finally {
@@ -298,6 +330,7 @@ const AddStudent = () => {
     { name: "branch",       type: "text",     placeholder: "Branch (e.g. CSE)",  icon: "📚", col: 1 },
     { name: "semester",     type: "number",   placeholder: "Semester (1–8)",     icon: "📅", col: 1 },
     { name: "contact",      type: "text",     placeholder: "Contact Number",     icon: "📞", col: 1 },
+    { name: "admissionDate", type: "date",    placeholder: "Admission Date",     icon: "📅", col: 1 },
   ];
 
   return (
@@ -432,6 +465,37 @@ const AddStudent = () => {
                       value={formData.contact} onChange={handleChange}
                       className="field-input" required />
                   </div>
+
+                  <div className="md:col-span-2">
+  <label className="text-xs text-gray-500 mb-1 block">
+    Admission Date
+  </label>
+
+  {/* <div className="field-wrap">
+    <span className="field-icon">📅</span>
+    <input
+      type="date"
+      name="admissionDate"
+      value={formData.admissionDate}
+      onChange={handleChange}
+      className="field-input"
+      required
+    />
+  </div> */}
+  <div className="field-wrap">
+  <span className="field-icon">📅</span>
+
+  <input
+    type="date"
+    name="admissionDate"
+    value={formData.admissionDate}
+    onChange={handleChange}
+    className="field-input"
+    max={new Date().toISOString().split("T")[0]}
+    required
+  />
+</div>
+</div>
                 </div>
 
                 {/* Divider */}
@@ -458,6 +522,202 @@ const AddStudent = () => {
                   </div>
 
                   {/* Room */}
+{/* Room Recommendation Header */}
+<div className="md:col-span-2 mb-2">
+
+  <div className="flex items-center justify-between">
+
+    <div>
+      <label
+        className="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+      >
+        Smart Room Recommendation
+      </label>
+
+      <p
+        className="text-[11px] text-slate-400 mt-1"
+      >
+        Recommendation is based on branch and semester compatibility.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      onClick={handleRecommendRoom}
+      disabled={
+        recommendationLoading ||
+        !formData.branch ||
+        !formData.semester
+      }
+      style={{
+        background:
+          !formData.branch || !formData.semester
+            ? "#e2e8f0"
+            : "#eef2ff",
+
+        color:
+          !formData.branch || !formData.semester
+            ? "#94a3b8"
+            : "#4f46e5",
+
+        border:"1px solid #c7d2fe",
+        borderRadius:12,
+        padding:"10px 16px",
+        fontSize:11,
+        fontWeight:700,
+
+        cursor:
+          !formData.branch || !formData.semester
+            ? "not-allowed"
+            : "pointer",
+
+        transition:"all 0.2s ease",
+
+        minWidth:"130px"
+      }}
+    >
+
+      {recommendationLoading
+        ? "Analyzing..."
+        : "✨ Suggest Room"}
+
+    </button>
+
+  </div>
+
+</div>
+
+{/* Room Select */}
+<div
+  className="field-wrap md:col-span-2"
+  style={{ position:"relative" }}
+>
+
+  <span className="field-icon">🏠</span>
+
+  <select
+    name="roomId"
+    value={formData.roomId}
+    onChange={handleChange}
+    className="field-input"
+    required
+  >
+
+    <option value="">Select Room</option>
+
+    {rooms.map((room) => (
+      <option key={room.id} value={room.id}>
+        Room {room.roomNumber} — Hostel {room.hostelNo}
+      </option>
+    ))}
+
+  </select>
+
+  {/* Chevron */}
+  <svg
+    style={{
+      position:"absolute",
+      right:14,
+      top:"50%",
+      transform:"translateY(-50%)",
+      pointerEvents:"none",
+      color:"#94a3b8"
+    }}
+    width="14"
+    height="14"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M19 9l-7 7-7-7"
+    />
+  </svg>
+
+</div>
+
+{/* Recommendation Result */}
+{recommendedRoom && (
+
+  <div
+    className="md:col-span-2 mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-4"
+  >
+
+    <p
+      className="text-indigo-700 font-semibold text-sm mb-1"
+    >
+      Recommended Room:
+      {" "}
+      Room {recommendedRoom.roomNumber}
+      {" "}
+      — Hostel {recommendedRoom.hostelNo}
+    </p>
+
+    <p className="text-xs text-indigo-500 mb-3">
+      Compatibility Score:
+      {" "}
+      {recommendedRoom.score}
+    </p>
+
+    <div className="flex flex-wrap gap-2">
+
+      {recommendedRoom.reasons.map((reason, index) => (
+
+        <span
+          key={index}
+          style={{
+            background:"#fff",
+            border:"1px solid #c7d2fe",
+            borderRadius:999,
+            padding:"4px 10px",
+            fontSize:10,
+            fontWeight:600,
+            color:"#4f46e5"
+          }}
+        >
+          {reason}
+        </span>
+
+      ))}
+
+    </div>
+
+  </div>
+
+)}
+                  {/* <div className="flex justify-between items-center mb-2">
+
+  <label
+    className="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+  >
+    Smart Room Recommendation
+  </label>
+
+  <button
+    type="button"
+    onClick={handleRecommendRoom}
+    disabled={recommendationLoading}
+    style={{
+      background:"#eef2ff",
+      color:"#4f46e5",
+      border:"1px solid #c7d2fe",
+      borderRadius:10,
+      padding:"6px 12px",
+      fontSize:11,
+      fontWeight:700,
+      cursor:"pointer"
+    }}
+  >
+    {recommendationLoading
+      ? "Analyzing..."
+      : "✨ Suggest Room"}
+  </button>
+
+</div>
+
                   <div className="field-wrap md:col-span-2" style={{ position:"relative" }}>
                     <span className="field-icon">🏠</span>
                     <select name="roomId" value={formData.roomId} onChange={handleChange}
@@ -469,12 +729,13 @@ const AddStudent = () => {
                         </option>
                       ))}
                     </select>
+
                     {/* Chevron */}
                     <svg style={{ position:"absolute", right:14, top:"50%", transform:"translateY(-50%)", pointerEvents:"none", color:"#94a3b8" }}
                       width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
-                  </div>
+                  {/* </div> */} 
                 </div>
 
                 {/* Divider */}

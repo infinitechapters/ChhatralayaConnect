@@ -1,6 +1,7 @@
 import prisma from "../prismaClient.js";
 //STUDENT PROFILE PICTURE 
 import imagekit from "../src/config/imagekit.js";
+import { analyzeComplaint } from "../services/aiServices.js";
 
 // UPLOAD PROFILE PICTURE
 export const uploadProfilePicture = async (req, res) => {
@@ -47,7 +48,7 @@ export const getStudentDashboard = async (req, res) => {
         enrollmentNo: true,
         branch: true,
         year: true,
-        createdAt: true,
+        admissionDate: true,
         room: {
           select: {
             roomNumber: true,
@@ -78,7 +79,7 @@ export const getStudentDashboard = async (req, res) => {
     });
 
     const today = new Date();
-    const joinedDate = new Date(student.createdAt);
+    const joinedDate = new Date(student.admissionDate);
 
     const monthsStayed =
       (today.getFullYear() - joinedDate.getFullYear()) * 12 +
@@ -114,7 +115,7 @@ export const getStudentDashboard = async (req, res) => {
       },
       stayDuration: {
         months: monthsStayed,
-        since: student.createdAt,
+        since: student.admissionDate,
       },
       announcements: latestAnnouncements,
     });
@@ -226,19 +227,34 @@ export const submitComplaint = async (req, res) => {
     const studentId = req.user.id;
     const { title, description } = req.body;
 
+    const aiResult = {
+  category: "General",
+  priority: "Medium",
+};
+
+try {
+  aiResult = await analyzeComplaint(description);
+} catch (err) {
+  console.log("AI ERROR:", err.message);
+}
     const complaint = await prisma.complaint.create({
       data: {
         title,
         description,
         studentId,
+        category: aiResult.category,
+        priority: aiResult.priority,
       },
     });
+
+    console.log(aiResult);
 
     res.status(201).json({
       message: "Complaint submitted successfully",
       complaint,
     });
   } catch (error) {
+    console.log("COMPLAINT ERROR:", error);
     res.status(500).json({ message: "Error submitting complaint" });
   }
 };

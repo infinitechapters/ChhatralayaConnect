@@ -14,7 +14,6 @@ const Students = () => {
   const [formData, setFormData] = useState({});
 
   const navigate = useNavigate();
-  
 
   useEffect(() => {
     fetchStudents();
@@ -49,57 +48,68 @@ const Students = () => {
     } catch (error) { console.error(error); }
   };
 
+  // ✅ Now returns fresh list so updateStudent can use it
   const fetchStudents = async () => {
     try {
       const res = await getAllStudents();
       setStudents(res.data.students || []);
-    } catch (error) { console.error(error); }
+      return res.data.students || [];
+    } catch (error) { console.error(error); return []; }
   };
 
-  // ✅ ONLY ADD THIS FUNCTION (inside component)
- const updateStudent = async () => {
-  try {
-    const cleanedData = {
-      enrollmentNo: formData.enrollmentNo,
-      branch: formData.branch,
-      semester: formData.semester,
-      contact: formData.contact,
-      permanentAddress: formData.permanentAddress,
-      parentName: formData.parentName,
-      parentNumber: formData.parentNumber,
-      LgName: formData.LgName,
-      LgNumber: formData.LgNumber,
-      LgAddress: formData.LgAddress,
-    };
+  const updateStudent = async () => {
+    try {
+      // ✅ Safely strip "T..." time part whether or not it's present
+      const rawDate = formData.admissionDate || "";
+      const cleanDate = rawDate.includes("T") ? rawDate.split("T")[0] : rawDate;
 
-    await API.put(`/admin/students/${selectedStudent.id}`, cleanedData);
+      const cleanedData = {
+        enrollmentNo: formData.enrollmentNo,
+        admissionDate: cleanDate || null,
+        branch: formData.branch,
+        semester: formData.semester,
+        contact: formData.contact,
+        permanentAddress: formData.permanentAddress,
+        parentName: formData.parentName,
+        parentNumber: formData.parentNumber,
+        LgName: formData.LgName,
+        LgNumber: formData.LgNumber,
+        LgAddress: formData.LgAddress,
+      };
 
-    if (selectedRoom) {
-      await API.put("/admin/assign-room", {
-        studentId: selectedStudent.id,
-        roomId: selectedRoom,
-      });
+      // ✅ Check browser console to confirm what is actually going to DB
+      console.log("Sending to DB:", cleanedData);
+
+      await API.put(`/admin/students/${selectedStudent.id}`, cleanedData);
+
+      if (selectedRoom) {
+        await API.put("/admin/assign-room", {
+          studentId: selectedStudent.id,
+          roomId: selectedRoom,
+        });
+      }
+
+      alert("Student Updated Successfully");
+
+      // ✅ Fetch fresh data, then find & re-set the updated student so modal reflects new values immediately
+      const freshStudents = await fetchStudents();
+      await fetchVacantRooms();
+
+      const updatedStudent = freshStudents.find((s) => s.id === selectedStudent.id);
+      if (updatedStudent) {
+        setSelectedStudent(updatedStudent);
+        setFormData(updatedStudent);
+      }
+
+      setIsEditing(false);
+      setSelectedRoom("");
+
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update student. Please try again.");
     }
+  };
 
-    alert("Student Updated Successfully");
-
-    // ✅ Close modal & reset state FIRST
-    setSelectedStudent(null);
-    setIsEditing(false);
-    setSelectedRoom("");
-    setFormData({});
-
-    // ✅ Then re-fetch to refresh the list
-    await fetchStudents();
-    await fetchVacantRooms();
-
-  } catch (error) {
-    console.error(error);
-    alert("Failed to update student. Please try again.");
-  }
-};
-
-  // ── Search filter (UI only, no logic change) ──
   const q = searchQuery.toLowerCase();
   const filteredStudents = students.filter((s) => {
     if (!q) return true;
@@ -121,20 +131,21 @@ const Students = () => {
   ];
 
   const labelToKey = (label) => {
-  const map = {
-    "Enrollment No": "enrollmentNo",
-    "Department": "branch",
-    "Semester": "semester",
-    "Phone": "contact",
-    "Address": "permanentAddress",
-    "Parent Name": "parentName",
-    "Parent Phone": "parentNumber",
-    "Local Guardian Name": "LgName",
-    "Local Guardian Phone": "LgNumber",
-    "Local Guardian Address": "LgAddress",
+    const map = {
+      "Enrollment No": "enrollmentNo",
+      "Department": "branch",
+      "Semester": "semester",
+      "Phone": "contact",
+      "Address": "permanentAddress",
+      "Parent Name": "parentName",
+      "Parent Phone": "parentNumber",
+      "Local Guardian Name": "LgName",
+      "Local Guardian Phone": "LgNumber",
+      "Local Guardian Address": "LgAddress",
+      "Admission Date": "admissionDate",
+    };
+    return map[label];
   };
-  return map[label];
-};
 
   return (
     <AdminLayout>
@@ -363,69 +374,73 @@ const Students = () => {
 
       {/* ── Modal ── */}
       {selectedStudent && (
-        <div className="modal-overlay" onClick={() => setSelectedStudent(null)}>
+        <div className="modal-overlay" onClick={() => { setSelectedStudent(null); setIsEditing(false); setSelectedRoom(""); }}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
 
             {/* Modal header */}
             <div style={{ background: "linear-gradient(135deg,#4f46e5,#818cf8)", padding: "24px 28px", position: "relative" }}>
               <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-  {!isEditing ? (
-    <button
-      onClick={() => setIsEditing(true)}
-      style={{
-        padding: "6px 14px",
-        background: "#6366f1",
-        color: "white",
-        borderRadius: 8,
-        border: "none",
-        fontSize: 12,
-        fontWeight: 600,
-        cursor: "pointer"
-      }}
-    >
-      Edit
-    </button>
-  ) : (
-    <div style={{ display: "flex", gap: 8 }}>
-      <button
-        onClick={() => {
-          setFormData(selectedStudent);
-          setIsEditing(false);
-        }}
-        style={{
-          padding: "6px 14px",
-          background: "#e2e8f0",
-          borderRadius: 8,
-          border: "none",
-          fontSize: 12,
-          fontWeight: 600
-        }}
-      >
-        Cancel
-      </button>
+                {!isEditing ? (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    style={{
+                      padding: "6px 14px",
+                      background: "#6366f1",
+                      color: "white",
+                      borderRadius: 8,
+                      border: "none",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer"
+                    }}
+                  >
+                    Edit
+                  </button>
+                ) : (
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={() => {
+                        setFormData(selectedStudent);
+                        setIsEditing(false);
+                        setSelectedRoom("");
+                      }}
+                      style={{
+                        padding: "6px 14px",
+                        background: "#e2e8f0",
+                        borderRadius: 8,
+                        border: "none",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: "pointer"
+                      }}
+                    >
+                      Cancel
+                    </button>
 
-      <button
-        onClick={updateStudent}
-        style={{
-          padding: "6px 14px",
-          background: "#16a34a",
-          color: "white",
-          borderRadius: 8,
-          border: "none",
-          fontSize: 12,
-          fontWeight: 600
-        }}
-      >
-        Save
-      </button>
-    </div>
-  )}
-</div>
+                    <button
+                      onClick={updateStudent}
+                      style={{
+                        padding: "6px 14px",
+                        background: "#16a34a",
+                        color: "white",
+                        borderRadius: 8,
+                        border: "none",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: "pointer"
+                      }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {/* Decorative circles */}
               <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
               <div style={{ position: "absolute", bottom: -16, left: 20, width: 50, height: 50, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
 
-              <button onClick={() => setSelectedStudent(null)}
+              <button onClick={() => { setSelectedStudent(null); setIsEditing(false); setSelectedRoom(""); }}
                 style={{ position: "absolute", top: 14, right: 16, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, transition: "background 0.2s" }}
                 onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.25)"}
                 onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}>
@@ -452,56 +467,63 @@ const Students = () => {
 
               {/* Info grid */}
               {[
-                { icon: "🎓", label: "Enrollment No", value: formData.enrollmentNo },
-{ icon: "📚", label: "Department", value: formData.branch },
-{ icon: "📅", label: "Semester", value: `Semester ${formData.semester}` },
-{ icon: "📞", label: "Phone", value: formData.contact },
-{ icon: "🏠", label: "Hostel", value: selectedStudent.room?.hostelNo || "—" }, // keep same
-{ icon: "📍", label: "Address", value: formData.permanentAddress },
-{ icon: "👨‍👩‍👦", label: "Parent Name", value: formData.parentName },
-{ icon: "📱", label: "Parent Phone", value: formData.parentNumber },
-{ icon: "👨‍👩‍👦", label: "Local Guardian Name", value: formData.LgName },
-{ icon: "📱", label: "Local Guardian Phone", value: formData.LgNumber },
-{ icon: "📍", label: "LG-Address", value: formData.LgAddress }
+                { icon: "🎓", label: "Enrollment No",          value: formData.enrollmentNo },
+                { icon: "📅", label: "Admission Date",         value: formData.admissionDate },
+                { icon: "📚", label: "Department",             value: formData.branch },
+                { icon: "📅", label: "Semester",               value: formData.semester },
+                { icon: "📞", label: "Phone",                  value: formData.contact },
+                { icon: "🏠", label: "Hostel",                 value: selectedStudent.room?.hostelNo || "—" },
+                { icon: "📍", label: "Address",                value: formData.permanentAddress },
+                { icon: "👨‍👩‍👦", label: "Parent Name",          value: formData.parentName },
+                { icon: "📱", label: "Parent Phone",           value: formData.parentNumber },
+                { icon: "👨‍👩‍👦", label: "Local Guardian Name",  value: formData.LgName },
+                { icon: "📱", label: "Local Guardian Phone",  value: formData.LgNumber },
+                { icon: "📍", label: "LG-Address",             value: formData.LgAddress },
               ].map(({ icon, label, value }) => (
                 <div key={label} className="detail-row">
                   <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1 }}>{icon}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94a3b8", marginBottom: 2 }}>
                       {label}
-                      
                     </div>
                     <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13.5, color: "#1e293b", fontWeight: 500 }}>
-                     {isEditing && label !== "Hostel" ? (
-  <input
-    value={formData[labelToKey(label)] || ""}
-    onChange={(e) =>
-      setFormData({
-        ...formData,
-        [labelToKey(label)]: e.target.value
-      })
-    }
-    style={{
-      fontFamily: "'DM Sans',sans-serif",
-      fontSize: 13.5,
-      color: "#1e293b",
-      fontWeight: 500,
-      width: "100%",
-      border: "1px solid #e2e8f0",
-      borderRadius: 6,
-      padding: "6px 8px"
-    }}
-  />
-) : (
-  <div style={{
-    fontFamily: "'DM Sans',sans-serif",
-    fontSize: 13.5,
-    color: "#1e293b",
-    fontWeight: 500
-  }}>
-    {value || "—"}
-  </div>
-)}
+                      {isEditing && label !== "Hostel" ? (
+                        <input
+                          type={label === "Admission Date" ? "date" : "text"}
+                          value={
+                            label === "Admission Date" && formData.admissionDate
+                              // ✅ strip T part whether or not it exists
+                              ? (formData.admissionDate.includes("T")
+                                  ? formData.admissionDate.split("T")[0]
+                                  : formData.admissionDate)
+                              : formData[labelToKey(label)] ?? ""
+                          }
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              [labelToKey(label)]: e.target.value,
+                            })
+                          }
+                          style={{
+                            fontFamily: "'DM Sans',sans-serif",
+                            fontSize: 13.5,
+                            color: "#1e293b",
+                            fontWeight: 500,
+                            width: "100%",
+                            border: "1px solid #e2e8f0",
+                            borderRadius: 6,
+                            padding: "6px 8px",
+                          }}
+                        />
+                      ) : (
+                        <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13.5, color: "#1e293b", fontWeight: 500 }}>
+                          {label === "Admission Date" && value
+                            ? (value.includes("T") ? value.split("T")[0] : value)
+                            : label === "Semester" && value
+                            ? `Semester ${value}`
+                            : value || "—"}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -510,66 +532,43 @@ const Students = () => {
               {/* Room section */}
               {selectedStudent.room ? (
                 <div style={{ marginTop: 12 }}>
+                  <div className="detail-row">
+                    <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1 }}>🚪</span>
+                    <div style={{ width: "100%" }}>
+                      <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94a3b8", marginBottom: 6 }}>
+                        Room
+                      </div>
 
-  <div className="detail-row">
-    <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1 }}>🚪</span>
-
-    <div style={{ width: "100%" }}>
-      <div style={{
-        fontFamily: "'DM Sans',sans-serif",
-        fontSize: 10,
-        fontWeight: 700,
-        letterSpacing: "0.12em",
-        textTransform: "uppercase",
-        color: "#94a3b8",
-        marginBottom: 6
-      }}>
-        Room
-      </div>
-
-      {/* 🔥 VIEW MODE */}
-      {!isEditing ? (
-        <span style={{
-          background: "#f0fdf4",
-          color: "#16a34a",
-          border: "1px solid #bbf7d0",
-          borderRadius: 8,
-          padding: "4px 12px",
-          fontSize: 13,
-          fontWeight: 600
-        }}>
-          🏠 {selectedStudent.room?.roomNumber
-            ? `Room ${selectedStudent.room.roomNumber}`
-            : "Not Assigned"}
-        </span>
-      ) : (
-        /* 🔥 EDIT MODE */
-        <>
-          <select
-            value={selectedRoom}
-            onChange={(e) => setSelectedRoom(e.target.value)}
-            className="room-select"
-          >
-            <option value="">Select a room</option>
-
-            {/* current room also included */}
-            {selectedStudent.room && (
-              <option value={selectedStudent.room.id}>
-                Current: Room {selectedStudent.room.roomNumber} — Hostel {selectedStudent.room.hostelNo}
-              </option>
-            )}
-
-            {vacantRooms.map((room) => (
-              <option key={room.id} value={room.id}>
-                Room {room.roomNumber} — Hostel {room.hostelNo}
-              </option>
-            ))}
-          </select>
-        </>
-      )}
-    </div>
-  </div>
-</div>
+                      {/* VIEW MODE */}
+                      {!isEditing ? (
+                        <span style={{ background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", borderRadius: 8, padding: "4px 12px", fontSize: 13, fontWeight: 600 }}>
+                          🏠 {selectedStudent.room?.roomNumber
+                            ? `Room ${selectedStudent.room.roomNumber}`
+                            : "Not Assigned"}
+                        </span>
+                      ) : (
+                        /* EDIT MODE */
+                        <select
+                          value={selectedRoom}
+                          onChange={(e) => setSelectedRoom(e.target.value)}
+                          className="room-select"
+                        >
+                          <option value="">Select a room</option>
+                          {selectedStudent.room && (
+                            <option value={selectedStudent.room.id}>
+                              Current: Room {selectedStudent.room.roomNumber} — Hostel {selectedStudent.room.hostelNo}
+                            </option>
+                          )}
+                          {vacantRooms.map((room) => (
+                            <option key={room.id} value={room.id}>
+                              Room {room.roomNumber} — Hostel {room.hostelNo}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <div style={{ marginTop: 12, background: "#f8fafc", border: "1.5px solid #e2e8f0", borderRadius: 16, padding: "16px" }}>
                   <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94a3b8", marginBottom: 10 }}>

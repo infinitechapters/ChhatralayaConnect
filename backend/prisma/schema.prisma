@@ -26,8 +26,10 @@ model Student {
   year           Int?
   semester       Int?
 
+  admissionDate DateTime @default(now())
+
   roomId Int?
-room   Room? @relation(fields: [roomId], references: [id])
+  room   Room? @relation(fields: [roomId], references: [id])
 
   contact        String?
   permanentAddress String?
@@ -89,6 +91,9 @@ model Complaint {
 
   studentId   Int
   student     Student @relation(fields: [studentId], references: [id])
+
+  category    String?
+  priority    String?
 }
 
 enum ComplaintStatus {

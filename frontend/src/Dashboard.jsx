@@ -589,6 +589,14 @@ useEffect(() => {
             <p className="font-body text-stone-500 text-xs tracking-wide">
               © 2026 Hostel Management System. All rights reserved.
             </p>
+            {/* <p className="font-body text-stone-500 text-xs tracking-wide">
+              Mentored by- Dr. Mamta Lambert Prof. and HOD IT Dept.
+            </p>
+            <p className="font-body text-stone-500 text-xs tracking-wide">
+              Developers-  Aanchal Deode (0201IT221002)
+              Savitri Iyer (0201IT221091)
+              Yashashvi Sharma (0201IT221116)
+            </p> */}
             <div className="flex items-center gap-6">
               {["Privacy", "Terms", "Contact"].map(item => (
                 <span key={item} className="font-body text-stone-500 hover:text-stone-300 text-xs font-medium cursor-pointer tracking-wide transition-colors duration-200">{item}</span>

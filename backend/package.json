@@ -21,6 +21,7 @@
     "imagekit": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^8.0.3",
+    "openai": "^6.37.0",
     "pg": "^8.19.0",
     "prisma": "^6.19.2"
   },
