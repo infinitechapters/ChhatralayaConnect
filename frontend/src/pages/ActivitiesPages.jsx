@@ -58,7 +58,7 @@
 // export default ActivitiesPage;
 
 import { useState, useEffect } from "react";
-import ActivityCard from "../components/ActivityCard.jsx";
+import ActivityCard from "../components/TempCard.jsx";
 import React from "react";
 
 import farewellImg      from "../assets/Farewell.jpeg";
