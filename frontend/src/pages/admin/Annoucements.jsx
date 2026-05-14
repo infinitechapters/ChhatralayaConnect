@@ -172,35 +172,32 @@ const Announcements = () => {
         }
     };
 
-  const handleGenerateAI = async () => {
+    const handleGenerateAI = async () => {
 
-  try {
+        try {
 
-    setAiLoading(true);
+            setAiLoading(true);
 
-    const res = await generateAnnouncementAI(aiPrompt);
+            const res = await generateAnnouncementAI(aiPrompt);
 
-    setMessage(res.data.content);
+            setMessage(res.data.content);
 
-  } catch (error) {
+        } catch (error) {
 
-    console.error(error);
+            console.error(error);
 
-  } finally {
+        } finally {
 
-    setAiLoading(false);
-  }
-};
+            setAiLoading(false);
+        }
+    };
 
     const handleSendMail = async (id) => {
         try {
-            const token = localStorage.getItem("accessToken"); 
-            const res = await fetch(`http://localhost:5000/api/admin/announcements/${id}/send-mail`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const token = localStorage.getItem("accessToken");
+            const res = await API.post(
+                `/admin/announcements/${id}/send-mail`
+            );
             const data = await res.json();
             alert(data.message);
         } catch (err) {
