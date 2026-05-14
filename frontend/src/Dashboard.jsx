@@ -166,6 +166,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import API from "./services/api";
 
 const navLinks = [
   { to: "/activities",    label: "Hostel Events"  },
