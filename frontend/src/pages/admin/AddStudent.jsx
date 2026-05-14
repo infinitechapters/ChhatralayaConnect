@@ -688,54 +688,7 @@ const [recommendationLoading, setRecommendationLoading] = useState(false);
   </div>
 
 )}
-                  {/* <div className="flex justify-between items-center mb-2">
-
-  <label
-    className="text-xs font-semibold text-slate-500 uppercase tracking-wider"
-  >
-    Smart Room Recommendation
-  </label>
-
-  <button
-    type="button"
-    onClick={handleRecommendRoom}
-    disabled={recommendationLoading}
-    style={{
-      background:"#eef2ff",
-      color:"#4f46e5",
-      border:"1px solid #c7d2fe",
-      borderRadius:10,
-      padding:"6px 12px",
-      fontSize:11,
-      fontWeight:700,
-      cursor:"pointer"
-    }}
-  >
-    {recommendationLoading
-      ? "Analyzing..."
-      : "✨ Suggest Room"}
-  </button>
-
-</div>
-
-                  <div className="field-wrap md:col-span-2" style={{ position:"relative" }}>
-                    <span className="field-icon">🏠</span>
-                    <select name="roomId" value={formData.roomId} onChange={handleChange}
-                      className="field-input" required>
-                      <option value="">Select Room</option>
-                      {rooms.map((room) => (
-                        <option key={room.id} value={room.id}>
-                          Room {room.roomNumber} — Hostel {room.hostelNo}
-                        </option>
-                      ))}
-                    </select>
-
-                    {/* Chevron */}
-                    <svg style={{ position:"absolute", right:14, top:"50%", transform:"translateY(-50%)", pointerEvents:"none", color:"#94a3b8" }}
-                      width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  {/* </div> */} 
+     
                 </div>
 
                 {/* Divider */}

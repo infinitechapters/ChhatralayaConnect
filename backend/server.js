@@ -11,7 +11,10 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: ["http://localhost:5173","https://chhatralaya-connect.vercel.app"],
+  origin: [
+    'http://localhost:5173',         // ← your local Vite dev server
+    // 'https://chhatralaya-connect.vercel.app',  // ← your production frontend
+  ],
   credentials: true
 }));
 app.use(express.json());
