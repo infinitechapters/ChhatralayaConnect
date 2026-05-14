@@ -216,13 +216,17 @@ export default function Dashboard() {
 
   const [announcements, setAnnouncements] = useState([]);
 useEffect(() => {
-  fetch("http://localhost:5000/api/admin/announcements")
-    .then(res => res.json())
-    .then(data => {
-      const items = data.map(a => `${a.title} — ${a.description}`);
+  API.get("/admin/announcements")
+    .then((res) => {
+      const items = res.data.map(
+        (a) => `${a.title} — ${a.description}`
+      );
+
       setAnnouncements(items);
     })
-    .catch(err => console.error("Failed to fetch announcements", err));
+    .catch((err) => {
+      console.error("Failed to fetch announcements", err);
+    });
 }, []);
   //end of announcement ticker
 
