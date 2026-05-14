@@ -11,11 +11,10 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: process.env.VITE_URL || "http://localhost:3000",
+  origin: ["http://localhost:5173","https://chhatralaya-connect.vercel.app"],
   credentials: true
 }));
 app.use(express.json());
-
 
 /* Routes */
 app.use("/api/auth", authRoutes);
