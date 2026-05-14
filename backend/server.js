@@ -13,7 +13,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "https://chhatralaya-connect.vercel.app/",
+      "https://chhatralaya-connect.vercel.app",
       "http://localhost:5173"
     ],
     credentials: true,
