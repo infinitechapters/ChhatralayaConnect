@@ -44,7 +44,11 @@ const Announcements = () => {
 
         } catch (error) {
 
-            console.error(error);
+          
+   console.log("STATUS:", error.response?.status);
+   console.log("DATA:", error.response?.data);
+   console.log(error);
+
 
         } finally {
 
@@ -52,18 +56,50 @@ const Announcements = () => {
         }
     };
 
-    const handleSendMail = async (id) => {
-        try {
-            const token = localStorage.getItem("accessToken");
-            const res = await API.post(
-                `/admin/announcements/${id}/send-mail`
-            );
-            const data = await res.json();
-            alert(data.message);
-        } catch (err) {
-            console.error(err);
-        }
-    };
+//     const handleSendMail = async (id) => {
+//         try {
+//             const token = localStorage.getItem("accessToken");
+//             const res = await API.post(
+//                 `/admin/announcements/${id}/send-mail`
+//             );
+//             // const data = await res.json();
+//             alert(res.data.message);
+//         } catch (err) {
+//             console.log("STATUS:", err.response?.status);
+//   console.log("DATA:", err.response?.data);
+//   console.log(err);
+
+//         }
+//     };
+    
+const handleSendMail = async (id) => {
+  console.log("Button clicked");
+  console.log("ID:", id);
+
+  try {
+    console.log("Sending request...");
+
+    const res = await API.post(
+      `/admin/announcements/${id}/send-mail`
+    );
+
+    console.log("Response received");
+    console.log(res);
+
+  } catch (err) {
+  console.log("Catch block entered");
+
+  console.log("STATUS:", err.response?.status);
+
+  console.log("DATA:", err.response?.data);
+
+  console.log("MESSAGE:", err.response?.data?.message);
+
+  console.log(err);
+}
+};
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!title || !message) return;

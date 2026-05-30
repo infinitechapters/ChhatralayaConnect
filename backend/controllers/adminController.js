@@ -101,41 +101,91 @@ export const assignRoomToStudent = async (req, res) => {
   }
 };
 
+// export const sendAnnouncementEmail = async (req, res) => {
+//   try {
+//     const id = Number(req.params.id);
+
+//     // fetch the announcement
+//     const announcement = await prisma.announcement.findUnique({
+//       where: { id },
+//     });
+
+//     if (!announcement) {
+//       return res.status(404).json({ message: "Announcement not found" });
+//     }
+
+//     // fetch all student emails from db
+//     const students = await prisma.student.findMany({
+//       select: { email: true },
+//     });
+
+//     const emails = students.map(s => s.email).filter(Boolean);
+
+//     if (emails.length === 0) {
+//       return res.status(400).json({ message: "No student emails found" });
+//     }
+
+//     await sendAnnouncementMail(emails, announcement.title, announcement.description);
+
+//     // ✅ CORRECT — wrap in backticks
+//     res.status(200).json({ message: `Mail sent to ${emails.length} students` });
+
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Error sending emails" });
+//   }
+// };
+
+
 export const sendAnnouncementEmail = async (req, res) => {
   try {
+    console.log("1. Controller entered");
+
     const id = Number(req.params.id);
 
-    // fetch the announcement
     const announcement = await prisma.announcement.findUnique({
       where: { id },
     });
 
+    console.log("2. Announcement fetched");
+
     if (!announcement) {
-      return res.status(404).json({ message: "Announcement not found" });
+      return res.status(404).json({
+        message: "Announcement not found",
+      });
     }
 
-    // fetch all student emails from db
     const students = await prisma.student.findMany({
       select: { email: true },
     });
 
-    const emails = students.map(s => s.email).filter(Boolean);
+    console.log("3. Students fetched:", students.length);
 
-    if (emails.length === 0) {
-      return res.status(400).json({ message: "No student emails found" });
-    }
+    const emails = students.map((s) => s.email).filter(Boolean);
 
-    await sendAnnouncementMail(emails, announcement.title, announcement.description);
+    console.log("4. Emails prepared:", emails.length);
 
-    // ✅ CORRECT — wrap in backticks
-    res.status(200).json({ message: `Mail sent to ${emails.length} students` });
+    await sendAnnouncementMail(
+      emails,
+      announcement.title,
+      announcement.description
+    );
+
+    console.log("5. Mail sent successfully");
+
+    res.status(200).json({
+      message: `Mail sent to ${emails.length} students`,
+    });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error sending emails" });
+  console.error("FULL ERROR:", error);
+
+  res.status(500).json({
+    message: error.message,
+    stack: error.stack
+  });
   }
 };
-
 
 // ✅ Add Student
 export const addStudent = async (req, res) => {

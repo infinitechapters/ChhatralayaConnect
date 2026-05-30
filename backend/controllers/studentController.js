@@ -222,21 +222,69 @@ export const getAnnouncements = async (req, res) => {
 
 //  COMPLAINT SECTION
 // Submit Complaint
+// export const submitComplaint = async (req, res) => {
+//   try {
+//     const studentId = req.user.id;
+//     const { title, description } = req.body;
+
+//     const aiResult = {
+//   category: "General",
+//   priority: "Medium",
+// };
+
+// try {
+//   aiResult = await analyzeComplaint(description);
+// } catch (err) {
+//   console.log("AI ERROR:", err.message);
+// }
+//     const complaint = await prisma.complaint.create({
+//       data: {
+//         title,
+//         description,
+//         studentId,
+//         category: aiResult.category,
+//         priority: aiResult.priority,
+//       },
+//     });
+
+//     console.log(aiResult);
+
+//     res.status(201).json({
+//       message: "Complaint submitted successfully",
+//       complaint,
+//     });
+//   } catch (error) {
+//     console.log("COMPLAINT ERROR:", error);
+//     res.status(500).json({ message: "Error submitting complaint" });
+//   }
+// };
+
 export const submitComplaint = async (req, res) => {
   try {
     const studentId = req.user.id;
     const { title, description } = req.body;
 
-    const aiResult = {
-  category: "General",
-  priority: "Medium",
-};
+    // Default fallback values
+    let aiResult = {
+      category: "Other",
+      priority: "Medium",
+    };
 
-try {
-  aiResult = await analyzeComplaint(description);
-} catch (err) {
-  console.log("AI ERROR:", err.message);
-}
+    try {
+      aiResult = await analyzeComplaint(description);
+
+      console.log("AI RESULT:", aiResult);
+
+    } catch (err) {
+      console.log("AI ERROR:", err.message);
+
+      // Keep fallback values if AI fails
+      aiResult = {
+        category: "Other",
+        priority: "Medium",
+      };
+    }
+
     const complaint = await prisma.complaint.create({
       data: {
         title,
@@ -247,17 +295,20 @@ try {
       },
     });
 
-    console.log(aiResult);
-
     res.status(201).json({
       message: "Complaint submitted successfully",
       complaint,
     });
+
   } catch (error) {
     console.log("COMPLAINT ERROR:", error);
-    res.status(500).json({ message: "Error submitting complaint" });
+
+    res.status(500).json({
+      message: "Error submitting complaint",
+    });
   }
 };
+
 
 // Get Student Complaints
 export const getStudentComplaints = async (req, res) => {

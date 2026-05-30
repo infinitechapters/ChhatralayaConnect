@@ -8,6 +8,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+
+
 export const sendAnnouncementMail = async (toEmails, title, description) => {
   await transporter.sendMail({
     from: `"JEC Hostel" <${process.env.GMAIL_USER}>`,
