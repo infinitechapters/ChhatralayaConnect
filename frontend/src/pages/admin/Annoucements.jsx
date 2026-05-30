@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import { createAnnouncement, getAllAnnouncements, generateAnnouncementAI } from "../../services/adminApi";
 import { useNavigate } from "react-router-dom";
+import API from "../../services/api";
 
 const Announcements = () => {
     const [announcements, setAnnouncements] = useState([]);
