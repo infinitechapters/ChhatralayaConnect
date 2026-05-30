@@ -180,10 +180,10 @@ export const sendAnnouncementEmail = async (req, res) => {
   } catch (error) {
   console.error("FULL ERROR:", error);
 
-  res.status(500).json({
-    message: error.message,
-    stack: error.stack
-  });
+  // res.status(500).json({
+  //   message: error.message,
+  //   stack: error.stack
+  // });
   }
 };
 

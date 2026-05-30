@@ -45,8 +45,8 @@ const Announcements = () => {
         } catch (error) {
 
           
-   console.log("STATUS:", error.response?.status);
-   console.log("DATA:", error.response?.data);
+//    console.log("STATUS:", error.response?.status);
+//    console.log("DATA:", error.response?.data);
    console.log(error);
 
 
@@ -84,16 +84,16 @@ const handleSendMail = async (id) => {
     );
 
     console.log("Response received");
-    console.log(res);
+    // console.log(res);
 
   } catch (err) {
   console.log("Catch block entered");
 
-  console.log("STATUS:", err.response?.status);
+//   console.log("STATUS:", err.response?.status);
 
-  console.log("DATA:", err.response?.data);
+//   console.log("DATA:", err.response?.data);
 
-  console.log("MESSAGE:", err.response?.data?.message);
+//   console.log("MESSAGE:", err.response?.data?.message);
 
   console.log(err);
 }
